@@ -21,12 +21,15 @@ namespace FSActiveFires {
         public MainWindow() {
             InitializeComponent();
 
+            // Not realy MVVM, but it's convenient
+
             MainViewModel vm = (MainViewModel)this.DataContext;
             Closing += vm.MainWindow_Closing;
             Button_Download.Click += vm.Button_Download_Click;
             Button_Test.Click += vm.Button_Test_Click;
             Button_Connect.Click += vm.Button_Connect_Click;
             Button_Install.Click += vm.Button_Install_Click;
+            Hyperlink_NASA.Click += vm.Hyperlink_NASA_Click;
             //Button_CreateObjects.Click += vm.Button_CreateObjects_Click;
             //Button_RemoveObjects.Click += vm.Button_RemoveObjects_Click;
         }

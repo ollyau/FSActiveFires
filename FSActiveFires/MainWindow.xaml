@@ -19,7 +19,11 @@
     <Grid Margin="10">
         <StackPanel>
             <GroupBox Header="Information" Padding="3">
-                <TextBlock TextWrapping="Wrap" Text="This program allows the user to download active fire data from the MODIS instrument onboard the the Terra (EOS AM) and Aqua (EOS PM) satellites.  This information is used to add fires to Flight Simulator."/>
+                <TextBlock TextWrapping="Wrap">
+                    <Run Text="This program uses active fire data from the NASA website to create fires in Flight Simulator.  More information on the data is available from the"/>
+                    <Hyperlink x:Name="Hyperlink_NASA"> <Run Text="NASA FIRMS website"/></Hyperlink>
+                    <Run Text="."/>
+                </TextBlock>
             </GroupBox>
             <GroupBox Header="Settings">
                 <Grid>
@@ -63,7 +67,7 @@
                         <Button x:Name="Button_RemoveObjects"  Grid.Column="2" Padding="3" Margin="5" Content="Remove Objects" IsEnabled="{Binding ObjectsCreated}"/>-->
                         <Button x:Name="Button_Test"           Grid.Column="1" Padding="3" Margin="5" Content="Move User to Random Fire"  IsEnabled="{Binding IsConnected}" />
                     </Grid>
-                    <TextBlock Margin="5" Text="{Binding CreatedSimObjectsCount, Converter={StaticResource CreatedObjectsInSimConverter}}" />                        
+                    <TextBlock Margin="5" Text="{Binding CreatedSimObjectsCount, Converter={StaticResource CreatedObjectsInSimConverter}}" />
                 </StackPanel>
             </GroupBox>
 

@@ -316,5 +316,9 @@ namespace FSActiveFires {
             }
 #endif
         }
+
+        internal void Hyperlink_NASA_Click(object sender, System.Windows.RoutedEventArgs e) {
+            System.Diagnostics.Process.Start("https://earthdata.nasa.gov/firms");
+        }
     }
 }
