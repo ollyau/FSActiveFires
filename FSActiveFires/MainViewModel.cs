@@ -1,4 +1,5 @@
 ﻿using Catfood.Shapefile;
+using iniLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -135,15 +136,19 @@ namespace FSActiveFires {
                 wc.DownloadFile(modelWebLocation, fireEffectDir + "\\model\\" + modelName + ".mdl");
             }
 
-            // write the cfg files
-            using (Ini cfg = new Ini(fireEffectDir + "\\sim.cfg", fireEffectDir + "\\model\\model.cfg")) {
-                cfg.WriteKeyValue(0, "fltsim.0", "title", modelName);
-                cfg.WriteKeyValue(0, "fltsim.0", "model", "");
-                cfg.WriteKeyValue(0, "fltsim.0", "texture", "");
-                cfg.WriteKeyValue(0, "fltsim.0", "ui_type", "SceneryObject");
-                cfg.WriteKeyValue(0, "General", "category", "SimpleObject");
-                cfg.WriteKeyValue(0, "contact_points", "destroy_on_impact", "0");
-                cfg.WriteKeyValue(1, "models", "normal", modelName);
+            // write the sim.cfg file
+            using (Ini simCfg = new Ini(fireEffectDir + "\\sim.cfg")) {
+                simCfg.WriteKeyValue("fltsim.0", "title", modelName);
+                simCfg.WriteKeyValue("fltsim.0", "model", "");
+                simCfg.WriteKeyValue("fltsim.0", "texture", "");
+                simCfg.WriteKeyValue("fltsim.0", "ui_type", "SceneryObject");
+                simCfg.WriteKeyValue("General", "category", "SimpleObject");
+                simCfg.WriteKeyValue("contact_points", "destroy_on_impact", "0");
+            }
+
+            // write the model.cfg file
+            using (Ini modelCfg = new Ini(fireEffectDir + "\\model\\model.cfg")) {
+                modelCfg.WriteKeyValue("models", "normal", modelName);
             }
 
             System.Windows.MessageBox.Show("Fire effect SimObject now installed.", "SimObject Installed", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);

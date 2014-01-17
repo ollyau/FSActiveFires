@@ -1,97 +1,87 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿/****************************** Module Header ******************************\
+Module Name:  ini.cs
+Project:      INI File Parser
+Copyright (c) Steven Frost.
+
+This file implements a simple INI file parser which allows manipulation of
+standard-format INI files.
+
+This source is subject to the MIT License.
+See http://opensource.org/licenses/MIT
+
+All other rights reserved.
+THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND,
+EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+\***************************************************************************/
+
+using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace FSActiveFires {
-    /// <summary>
-    /// Ini parsing library originally written by Steven Frost
-    /// </summary>
+namespace iniLib {
     public class Ini : IDisposable {
-        public ArrayList Locations;
+        public string path;
 
-        [DllImport("kernel32")]
-        private static extern long WritePrivateProfileString(string section, string key, string value, string filePath);
-        [DllImport("kernel32")]
-        private static extern int GetPrivateProfileString(string section, string key, string defValue, StringBuilder retVal, int size, string filePath);
-        [DllImport("kernel32")]
-        private static extern int GetPrivateProfileString(string section, int key, string value, [MarshalAs(UnmanagedType.LPArray)] byte[] result, int size, string filePath);
-        [DllImport("kernel32")]
-        private static extern int GetPrivateProfileString(int section, string key, string value, [MarshalAs(UnmanagedType.LPArray)] byte[] result, int size, string filePath);
+        [DllImport("kernel32.dll")]
+        private static extern bool WritePrivateProfileString(string section, string key, string value, string filePath);
+        [DllImport("kernel32.dll")]
+        private static extern ulong GetPrivateProfileString(string section, string key, string defValue, StringBuilder retVal, ulong size, string filePath);
+        [DllImport("kernel32.dll")]
+        private static extern ulong GetPrivateProfileString(string section, int key, string value, [MarshalAs(UnmanagedType.LPArray)] byte[] result, ulong size, string filePath);
+        [DllImport("kernel32.dll")]
+        private static extern ulong GetPrivateProfileString(int section, string key, string value, [MarshalAs(UnmanagedType.LPArray)] byte[] result, ulong size, string filePath);
         [DllImport("kernel32.dll")]
         private static extern bool WritePrivateProfileSection(string section, string value, string filePath);
 
         /// <summary>
         /// Class constructor
         /// </summary>
-        /// <param name="location">The location of an ini file to work with</param>
-        public Ini(string location) {
-            Locations = new ArrayList();
-            Locations.Add(location);
+        /// <param name="path">The location of an ini file to work with</param>
+        public Ini(string path) {
+            this.path = path;
         }
 
         /// <summary>
-        /// Class constructor
+        /// Comments out the specified key
         /// </summary>
-        /// <param name="locations">Ini file locations to work with</param>
-        public Ini(params string[] locations) {
-            Locations = new ArrayList();
-
-            foreach (string path in locations)
-                Locations.Add(path);
-        }
-
-        /// <summary>
-        /// Comments out the specified key in the given ini file
-        /// </summary>
-        /// <param name="fileID">The ID of the file to read from</param>
         /// <param name="section">The section containing the key</param>
         /// <param name="key">The key to comment out</param>
         /// <param name="commentDefinition">The comment character(s) (; by default)</param>
-        public void AddKeyComment(int fileID, string section, string key, string commentDefinition = ";") {
-            string value = GetKeyValue(fileID, section, key);
-
-            RemoveKey(fileID, section, key);
-            WriteKeyValue(fileID, section, String.Format("{0} {1}", commentDefinition, key), value);
-            value = null;
+        public void AddKeyComment(string section, string key, string commentDefinition = ";") {
+            string value = GetKeyValue(section, key);
+            RemoveKey(section, key);
+            WriteKeyValue(section, String.Format("{0} {1}", commentDefinition, key), value);
         }
 
         /// <summary>
-        /// Gets the names of all categories in the specified ini file
+        /// Gets the names of all categories in the ini file
         /// </summary>
-        /// <param name="fileID">The ID of the file to read from</param>
-        /// <returns>String array containing all section names</returns>
-        public string[] GetCategoryNames(int fileID) {
-            for (int maxsize = 500; true; maxsize *= 2) {
-                // Get the category names
+        /// <returns>Array of category names</returns>
+        public string[] GetCategoryNames() {
+            for (ulong maxsize = 500; true; maxsize *= 2) {
                 byte[] bytes = new byte[maxsize];
-                int size = GetPrivateProfileString(0, "", "", bytes, maxsize, Locations[fileID].ToString());
+                int size = (int)GetPrivateProfileString(0, "", "", bytes, maxsize, path);
 
-                if (size < maxsize - 2) {
-                    // Format the strings and return the array
-                    string Selected = Encoding.ASCII.GetString(bytes, 0, size - (size > 0 ? 1 : 0));
-                    return Selected.Split(new char[] { '\0' });
+                if (size < (int)(maxsize - 2)) {
+                    string selected = Encoding.ASCII.GetString(bytes, 0, size - (size > 0 ? 1 : 0));
+                    return selected.Split(new char[] { '\0' });
                 }
             }
         }
 
         /// <summary>
-        /// Gets the names of all keys in a specified section in the given ini file
+        /// Gets the names of all keys in a specified section in the ini file
         /// </summary>
-        /// <param name="fileID">The ID of the file to read from</param>
-        /// <param name="section">The section to real from</param>
-        /// <returns>String array containing all key names in the given section</returns>
-        public string[] GetKeyNames(int fileID, string section) {
-            for (int maxsize = 500; true; maxsize *= 2) {
-                // Get the key names
+        /// <param name="section">The section to read from</param>
+        /// <returns>Array of key names</returns>
+        public string[] GetKeyNames(string section) {
+            for (ulong maxsize = 500; true; maxsize *= 2) {
                 byte[] bytes = new byte[maxsize];
-                int size = GetPrivateProfileString(section, 0, "", bytes, maxsize, Locations[fileID].ToString());
+                int size = (int)GetPrivateProfileString(section, 0, "", bytes, maxsize, path);
 
-                if (size < maxsize - 2) {
-                    // Format the strings and return the array
+                if (size < (int)(maxsize - 2)) {
                     string entries = Encoding.ASCII.GetString(bytes, 0, size - (size > 0 ? 1 : 0));
                     return entries.Split(new char[] { '\0' });
                 }
@@ -99,78 +89,67 @@ namespace FSActiveFires {
         }
 
         /// <summary>
-        /// Gets the current value of the specified key in the given category
+        /// Gets the current value of a key in a category
         /// </summary>
-        /// <param name="fileID">The ID of the file to read from</param>
         /// <param name="section">The section in the ini file to read from</param>
         /// <param name="Key">The key in the ini file to read from</param>
-        /// <returns>The current value set in the specified key</returns>
-        public string GetKeyValue(int fileID, string section, string key) {
+        /// <returns>The key value</returns>
+        public string GetKeyValue(string section, string key) {
             StringBuilder stringBuilder = new StringBuilder(255);
-            GetPrivateProfileString(section, key, "", stringBuilder, 255, Locations[fileID].ToString());
+            GetPrivateProfileString(section, key, "", stringBuilder, 255, path);
             return stringBuilder.ToString();
         }
 
         /// <summary>
-        /// Determines if a value exists for a given key
+        /// Determines if a value exists for a key
         /// </summary>
-        /// <param name="fileID">The ID of the file to read from</param>
-        /// <param name="section">The section in the ini file to read from</param>
-        /// <param name="key">The key in the ini file to read from</param>
-        /// <returns>True if the value exists for the given key</returns>
-        public bool KeyValueExists(int fileID, string section, string key) {
-            bool valueExists = false;
-
-            if (GetKeyValue(fileID, section, key) != "")
-                valueExists = true;
-
-            return valueExists;
+        /// <param name="section">The section the key is contained in</param>
+        /// <param name="key">The key to check</param>
+        /// <returns>True if the value exists for the key</returns>
+        public bool KeyValueExists(string section, string key) {
+            return (GetKeyValue(section, key) != "");
         }
 
         /// <summary>
-        /// Removes all keys in the specified section in the given ini file
+        /// Removes all keys in the specified section
         /// </summary>
-        /// <param name="fileID">The ID of the file to read from</param>
         /// <param name="section">The section to remove all keys from</param>
-        public void RemoveAllKeys(int fileID, string section) {
-            WritePrivateProfileSection(section, "", Locations[fileID].ToString());
+        public void RemoveAllKeys(string section) {
+            WritePrivateProfileSection(section, "", path);
         }
 
         /// <summary>
-        /// Removes a specified key from the given section in the specified ini file
+        /// Removes a specified key from a section in the ini file
         /// </summary>
-        /// <param name="fileID">The ID of the file to read from</param>
         /// <param name="section">The section containing the key to be removed</param>
-        /// <param name="key">The key to be removed from the section</param>
-        public void RemoveKey(int fileID, string section, string key) {
-            WritePrivateProfileString(section, key, null, Locations[fileID].ToString());
+        /// <param name="key">The key to be removed</param>
+        public void RemoveKey(string section, string key) {
+            WritePrivateProfileString(section, key, null, path);
         }
 
         /// <summary>
-        /// Removes the specified section from the given ini file
+        /// Removes a section from the ini file
         /// </summary>
-        /// <param name="fileID">The ID of the file to read from</param>
         /// <param name="section">The section to remove</param>
-        public void RemoveSection(int fileID, string section) {
-            WritePrivateProfileSection(section, null, Locations[fileID].ToString());
+        public void RemoveSection(string section) {
+            WritePrivateProfileSection(section, null, path);
         }
 
         /// <summary>
-        /// Writes a value to the specified key in a specified category in the ini file
+        /// Writes a value to a key in a specific category
         /// </summary>
-        /// <param name="fileID">The ID of the file to write to</param>
-        /// <param name="category">The section of the ini file to write to</param>
-        /// <param name="key">The key to write to</param>
-        /// <param name="value">The value to assign to the key</param>
-        public void WriteKeyValue(int fileID, string category, string key, string value) {
-            WritePrivateProfileString(category, key, value, Locations[fileID].ToString());
+        /// <param name="category">The section containing the key</param>
+        /// <param name="key">The key to write</param>
+        /// <param name="value">The value to write</param>
+        public void WriteKeyValue(string category, string key, string value) {
+            WritePrivateProfileString(category, key, value, path);
         }
 
         /// <summary>
         /// Disposes of all objects
         /// </summary>
         void IDisposable.Dispose() {
-            Locations = null;
+            path = null;
         }
     }
 }
