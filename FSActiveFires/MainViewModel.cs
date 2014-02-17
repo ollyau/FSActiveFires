@@ -22,6 +22,7 @@ namespace FSActiveFires {
         //private string simObjectTitle = "Food_pallet";
         private string simObjectTitle = "Fire_Effect";
         private string output;
+        private int minimumConfidence;
 
         // Expose SimConnect public properties for data binding
 
@@ -52,6 +53,11 @@ namespace FSActiveFires {
             set { SetField(ref simObjectTitle, value); }
         }
 
+        public int MinimumConfidence {
+            get { return minimumConfidence; }
+            set { SetField(ref minimumConfidence, value); }
+        }
+
         public Dictionary<string, string> Datasets {
             get { return datasets; }
             set { SetField(ref datasets, value); }
@@ -77,10 +83,10 @@ namespace FSActiveFires {
             if (LoggingEnabled) {
                 Output += text + "\r\n";
                 IsLogsChangedPropertyInViewModel = true;
-            }
 #if DEBUG
-            Console.WriteLine(text);
+                Console.WriteLine(text);
 #endif
+            }
         }
 
         /// <summary>
@@ -230,11 +236,11 @@ namespace FSActiveFires {
             // based on Catfood.Shapefile demo app
             using (Shapefile shp = new Shapefile(pathToShapefile)) {
 
-                AddOutput(String.Format("Type: {0}, Shapes: {1:n0}", shp.Type, shp.Count));
+                //AddOutput(String.Format("Type: {0}, Shapes: {1:n0}", shp.Type, shp.Count));
 
                 // Loop through app the shapes in the shapefile
                 foreach (Shape shape in shp) {
-                    AddOutput(String.Format("Shape {0:n0}, Type {1}", shape.RecordNumber, shape.Type));
+                    //AddOutput(String.Format("Shape {0:n0}, Type {1}", shape.RecordNumber, shape.Type));
 
                     //// Get the metadata from the shape
                     //string[] metadataNames = shape.GetMetadataNames();
@@ -249,21 +255,25 @@ namespace FSActiveFires {
                     // Cast shape based on the type
                     switch (shape.Type) {
                         case ShapeType.Point:
-                            // a point is just a single x/y point
-                            ShapePoint shapePoint = shape as ShapePoint;
-                            AddOutput(String.Format("Point={0},{1}", shapePoint.Point.X, shapePoint.Point.Y));
+                            // Get the metadata from the shape
+                            int confidence;
+                            if (int.TryParse(shape.GetMetadata("confidence"), out confidence)) {
+                                if (confidence >= MinimumConfidence) {
+                                    ShapePoint shapePoint = shape as ShapePoint;
 
-                            // add fire to list of fires if it doesn't exist already
-                            downloadedFires.Add(new Coordinate(shapePoint.Point.Y, shapePoint.Point.X));
+                                    // add fire to list of fires if it doesn't exist already
+                                    downloadedFires.Add(new Coordinate(shapePoint.Point.Y, shapePoint.Point.X));
 
-                            // Raise event to update TotalFiresCount property to update GUI
-                            OnPropertyChanged("TotalFiresCount");
+                                    // Raise event to update TotalFiresCount property to update GUI
+                                    OnPropertyChanged("TotalFiresCount");
+                                }
+                            }
                             break;
-                        default:
-                            AddOutput("Shape type " + Enum.GetName(typeof(ShapeType), shape.Type) + "is not supported.");
-                            break;
+                        //default:
+                        //    //AddOutput("Shape type " + Enum.GetName(typeof(ShapeType), shape.Type) + " is not supported.");
+                        //    break;
                     }
-                    AddOutput("\r\n");
+                    //AddOutput("\r\n");
                 }
             }
         }

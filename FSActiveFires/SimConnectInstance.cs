@@ -65,7 +65,11 @@ namespace FSActiveFires {
             sc = new SimConnect(null);
 
             // Set logging enabled or disabled
+#if DEBUG
+            LoggingEnabled = true;
+#else
             LoggingEnabled = false;
+#endif
 
             // hook needed events
             sc.OnRecvOpen += new SimConnect.RecvOpenEventHandler(sc_OnRecvOpen);

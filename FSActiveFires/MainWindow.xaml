@@ -51,6 +51,9 @@
                         <Button     Grid.Column="1" Padding="3" Margin="5" Content="Install Model" x:Name="Button_Install" />
                     </Grid>
 
+                    <TextBlock  Grid.Row="2" Grid.Column="0" Padding="2" TextAlignment="Right" VerticalAlignment="Center" Text="Minimum&#x0a;Confidence" HorizontalAlignment="Center" />
+                    <Slider Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding MinimumConfidence, Mode=TwoWay}" IsSnapToTickEnabled="True" VerticalAlignment="Center" TickPlacement="BottomRight" TickFrequency="5"/>
+
                     <TextBlock  Grid.Row="3" Grid.Column="1" Padding="3" Margin="5" Text="{Binding TotalFiresCount, Converter={StaticResource TotalFiresCountConverter}}" />
                     <Button     Grid.Row="3" Grid.Column="1" Padding="3" Margin="5,5,5,0" Content="Download Data" VerticalAlignment="Center" HorizontalAlignment="Right" x:Name="Button_Download" />
                 </Grid>
