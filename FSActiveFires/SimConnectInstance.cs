@@ -30,7 +30,7 @@ namespace FSActiveFires {
         }
     }
 
-    class SimConnectInstance : ViewModelBase {
+    class SimConnectInstance : NotifyPropertyChanged {
 
         // Private fields
 
@@ -48,10 +48,10 @@ namespace FSActiveFires {
 
         // Public properties
 
-        public string TextOutput { get { return _textOutput; } set { SetField(ref _textOutput, value); IsLogsChangedPropertyInViewModel = true; } }
-        public bool IsConnected { get { return _isConnected; } private set { SetField(ref _isConnected, value); } }
-        public bool IsLogsChangedPropertyInViewModel { get { return _isLogsChangedPropertyInViewModel; } set { SetField(ref _isLogsChangedPropertyInViewModel, value); } }
-        public bool LoggingEnabled { get { return _loggingEnabled; } private set { SetField(ref _loggingEnabled, value); } }
+        public string TextOutput { get { return _textOutput; } set { SetProperty(ref _textOutput, value); IsLogsChangedPropertyInViewModel = true; } }
+        public bool IsConnected { get { return _isConnected; } private set { SetProperty(ref _isConnected, value); System.Windows.Input.CommandManager.InvalidateRequerySuggested(); } }
+        public bool IsLogsChangedPropertyInViewModel { get { return _isLogsChangedPropertyInViewModel; } set { SetProperty(ref _isLogsChangedPropertyInViewModel, value); } }
+        public bool LoggingEnabled { get { return _loggingEnabled; } private set { SetProperty(ref _loggingEnabled, value); } }
 
         public int CreatedSimObjectsCount { get { return ObjectsInSimulation.Count; } }                 // Make sure to trigger OnPropertyChanged manually
         public bool ObjectsCreated { get { return ObjectsInSimulation.Count > 0 ? true : false; } }     // Make sure to trigger OnPropertyChanged manually
@@ -85,7 +85,7 @@ namespace FSActiveFires {
             ObjectsInSimulation = new Dictionary<uint, Coordinate>();
 
             // Give output
-            AddOutput(appName + " by Orion Lyau\r\nVersion: " + System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion + "\r\n");
+            AddOutput(appName + " by Orion Lyau\r\nVersion: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + "\r\n");
         }
 
         ~SimConnectInstance() {
@@ -94,7 +94,7 @@ namespace FSActiveFires {
             ObjectsInSimulation = null;
         }
 
-        private void AddOutput(string text) {
+        public void AddOutput(string text) {
             if (LoggingEnabled) {
                 TextOutput += text + "\r\n";
             }
@@ -107,35 +107,11 @@ namespace FSActiveFires {
         /// Initialization method.  Connects to the simulator.
         /// </summary>
         public void Connect() {
-            // null if p3d isn't installed
-            string p3d = (string)Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\LockheedMartin\Prepar3D", "SetupPath", null);
-            string p3d2 = (string)Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Lockheed Martin\Prepar3D v2", "SetupPath", null);
-
-            // check for prepar3d because it messes up the IsLocalRunning return value
-            if (p3d == null && p3d2 == null) {
-                if (SimConnect.IsLocalRunning()) {
-                    // allow attempt a local connection if one appears to be running
-                    // make local pipe connection (default local mode)
-                    try {
-                        sc.Open(appName);
-                    }
-                    catch (SimConnect.SimConnectException) {
-                        AddOutput("Local connection failed.");
-                    }
-                }
-                else {
-                    AddOutput("No local SimConnect instance available.");
-                }
+            try {
+                sc.Open(appName);
             }
-            else {
-                // p3d is installed; IsLocalRunning won't detect fsx
-                // just try connecting
-                try {
-                    sc.Open(appName);
-                }
-                catch (SimConnect.SimConnectException) {
-                    AddOutput("Local connection failed.");
-                }
+            catch (SimConnect.SimConnectException) {
+                AddOutput("Local connection failed.");
             }
         }
 

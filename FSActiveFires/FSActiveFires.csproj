@@ -50,6 +50,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Windows.Interactivity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -67,12 +68,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AutoScrollHelper.cs" />
     <Compile Include="Ini.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="RelayCommand.cs" />
     <Compile Include="SimConnectInstance.cs" />
     <Compile Include="StructsAndEnums.cs" />
     <Compile Include="ValueConverters.cs" />
-    <Compile Include="ViewModelBase.cs" />
+    <Compile Include="NotifyPropertyChanged.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -7,9 +7,10 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace FSActiveFires {
-    class MainViewModel : ViewModelBase {
+    class MainViewModel : NotifyPropertyChanged {
 
         // Private fields
 
@@ -23,6 +24,68 @@ namespace FSActiveFires {
         private string simObjectTitle = "Fire_Effect";
         private string output;
         private int minimumConfidence;
+
+        // UI Commands
+
+        private ICommand _connectCommand;
+        public ICommand ConnectCommand {
+            get {
+                if (_connectCommand == null) {
+                    _connectCommand = new RelayCommand(param => Button_Connect_Click());
+                }
+                return _connectCommand;
+            }
+        }
+
+        private ICommand _downloadCommand;
+        public ICommand DownloadCommand {
+            get {
+                if (_downloadCommand == null) {
+                    _downloadCommand = new RelayCommand(param => Button_Download_Click());
+                }
+                return _downloadCommand;
+            }
+        }
+
+        private ICommand _relocateUserCommand;
+        public ICommand RelocateUserCommand {
+            get {
+                if (_relocateUserCommand == null) {
+                    _relocateUserCommand = new RelayCommand(param => Button_Relocate_User_Click(), param => IsConnected);
+                }
+                return _relocateUserCommand;
+            }
+        }
+
+        private ICommand _installCommand;
+        public ICommand InstallCommand {
+            get {
+                if (_installCommand == null) {
+                    _installCommand = new RelayCommand(param => Button_Install_Click());
+                }
+                return _installCommand;
+            }
+        }
+
+        private ICommand _nasaCommand;
+        public ICommand NASACommand {
+            get {
+                if (_nasaCommand == null) {
+                    _nasaCommand = new RelayCommand(param => Hyperlink_NASA_Click());
+                }
+                return _nasaCommand;
+            }
+        }
+
+        private ICommand _closingCommand;
+        public ICommand ClosingCommand {
+            get {
+                if (_closingCommand == null) {
+                    _closingCommand = new RelayCommand(param => MainWindow_Closing());
+                }
+                return _closingCommand;
+            }
+        }
 
         // Expose SimConnect public properties for data binding
 
@@ -39,28 +102,28 @@ namespace FSActiveFires {
             set { sc.IsLogsChangedPropertyInViewModel = value; }
         }
 
-        public string Output {
-            get { return output; }
-            set { SetField(ref output, value); }
-        }
+        //public string Output {
+        //    get { return output; }
+        //    set { SetProperty(ref output, value); }
+        //}
 
         public string SelectedDataset {
             get { return selectedDataset; }
-            set { SetField(ref selectedDataset, value); }
+            set { SetProperty(ref selectedDataset, value); }
         }
         public string SimObjectTitle {
             get { return simObjectTitle; }
-            set { SetField(ref simObjectTitle, value); }
+            set { SetProperty(ref simObjectTitle, value); }
         }
 
         public int MinimumConfidence {
             get { return minimumConfidence; }
-            set { SetField(ref minimumConfidence, value); }
+            set { SetProperty(ref minimumConfidence, value); }
         }
 
         public Dictionary<string, string> Datasets {
             get { return datasets; }
-            set { SetField(ref datasets, value); }
+            set { SetProperty(ref datasets, value); }
         }
 
         public int TotalFiresCount {
@@ -80,13 +143,14 @@ namespace FSActiveFires {
         }
 
         private void AddOutput(string text) {
-            if (LoggingEnabled) {
-                Output += text + "\r\n";
-                IsLogsChangedPropertyInViewModel = true;
-#if DEBUG
-                Console.WriteLine(text);
-#endif
-            }
+            sc.AddOutput(text);
+            //            if (LoggingEnabled) {
+            //                Output += text + "\r\n";
+            //                IsLogsChangedPropertyInViewModel = true;
+            //#if DEBUG
+            //                Console.WriteLine(text);
+            //#endif
+            //            }
         }
 
         /// <summary>
@@ -278,13 +342,13 @@ namespace FSActiveFires {
             }
         }
 
-        // Event handlers
+        // Command logic
 
-        internal void Button_Download_Click(object sender, System.Windows.RoutedEventArgs e) {
+        private void Button_Download_Click() {
             ProcessData(SelectedDataset);
         }
 
-        internal void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
+        private void MainWindow_Closing() {
             if (Directory.Exists(GetAppTempPath())) {
                 AddOutput("Delete directory: " + GetAppTempPath());
                 Directory.Delete(GetAppTempPath(), true);
@@ -294,11 +358,11 @@ namespace FSActiveFires {
             }
         }
 
-        internal void Button_Test_Click(object sender, System.Windows.RoutedEventArgs e) {
+        private void Button_Relocate_User_Click() {
             sc.RelocateUserRandomly(downloadedFires.ToArray());
         }
 
-        internal void Button_Connect_Click(object sender, System.Windows.RoutedEventArgs e) {
+        private void Button_Connect_Click() {
             if (!IsConnected) {
                 sc.Connect();
             }
@@ -315,7 +379,7 @@ namespace FSActiveFires {
         //    sc.RemoveAllObjects();
         //}
 
-        internal void Button_Install_Click(object sender, System.Windows.RoutedEventArgs e) {
+        private void Button_Install_Click() {
             // Install model
 #if !DEBUG
             try {
@@ -332,7 +396,7 @@ namespace FSActiveFires {
 #endif
         }
 
-        internal void Hyperlink_NASA_Click(object sender, System.Windows.RoutedEventArgs e) {
+        private void Hyperlink_NASA_Click() {
             System.Diagnostics.Process.Start("https://earthdata.nasa.gov/firms");
         }
     }

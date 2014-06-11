@@ -7,7 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace FSActiveFires {
-    class ViewModelBase : INotifyPropertyChanged {
+    /// <summary>
+    /// Adapted from example on StackOverflow https://stackoverflow.com/a/1316417
+    /// </summary>
+    abstract class NotifyPropertyChanged : INotifyPropertyChanged {
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName) {
             PropertyChangedEventHandler handler = PropertyChanged;
@@ -15,7 +18,7 @@ namespace FSActiveFires {
                 handler(this, new PropertyChangedEventArgs(propertyName));
             }
         }
-        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null) {
+        protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null) {
             if (EqualityComparer<T>.Default.Equals(field, value)) {
                 return false;
             }
