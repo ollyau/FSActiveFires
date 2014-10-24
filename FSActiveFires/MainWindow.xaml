@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:local="clr-namespace:FSActiveFires"
-        Title="FS Active Fires" SizeToContent="Height" Width="525" ResizeMode="CanMinimize" UseLayoutRounding="True">
+        Title="FS Active Fires" SizeToContent="Height" Width="525" ResizeMode="CanMinimize" SnapsToDevicePixels="True">
     <Window.DataContext>
         <local:MainViewModel />
     </Window.DataContext>
