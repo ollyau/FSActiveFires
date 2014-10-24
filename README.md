@@ -1,7 +1,7 @@
 FSActiveFires
 =============
 
-![Screenshot of FS Active Fires](http://i.imgur.com/ab9gKBS.png)
+![Screenshot of FS Active Fires](http://i.imgur.com/RSvwbAA.png)
 
 A utility that downloads active fire data from the NASA website to create fires in Microsoft Flight Simulator.
 
