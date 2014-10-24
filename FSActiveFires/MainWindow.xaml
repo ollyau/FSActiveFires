@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:local="clr-namespace:FSActiveFires"
-        Title="FS Active Fires" SizeToContent="Height" Width="525" ResizeMode="CanMinimize">
+        Title="FS Active Fires" SizeToContent="Height" Width="525" ResizeMode="CanMinimize" UseLayoutRounding="True">
     <Window.DataContext>
         <local:MainViewModel />
     </Window.DataContext>
@@ -78,6 +78,7 @@
                     </StackPanel>
                 </StackPanel>
             </GroupBox>
+            <TextBlock Margin="5,5,5,0" VerticalAlignment="Center">Appreciate my software and feeling charitable?  <Hyperlink Command="{Binding DonateCommand}">Donate via PayPal.</Hyperlink></TextBlock>
         </StackPanel>
     </Grid>
 </Window>

@@ -117,6 +117,19 @@ namespace FSActiveFires {
             }
         }
 
+        private ICommand _donateCommand;
+        public ICommand DonateCommand {
+            get {
+                if (_donateCommand == null) {
+                    _donateCommand = new RelayCommand(param => {
+                        log.Info("DonateCommand");
+                        System.Diagnostics.Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=orion%2epublic%40live%2ecom&lc=US&item_name=FS%20Active%20Fires%20Donation&currency_code=USD");
+                    });
+                }
+                return _donateCommand;
+            }
+        }
+
         private ICommand _closingCommand;
         public ICommand ClosingCommand {
             get {
