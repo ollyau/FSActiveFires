@@ -8,7 +8,19 @@ namespace FSActiveFires {
         [STAThreadAttribute]
         public static void Main() {
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-            App.Main();
+#if !DEBUG
+            try {
+#endif
+                App.Main();
+#if !DEBUG
+            }
+            catch (Exception ex) {
+                Log log = Log.Instance;
+                log.Error(string.Format("Message: {0}\r\nStack trace:\r\n{1}", ex.Message, ex.StackTrace));
+                log.Save();
+                throw;
+            }
+#endif
         }
 
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args) {
