@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Linq;
 
 namespace FSActiveFires {
     class Program {
@@ -11,12 +12,19 @@ namespace FSActiveFires {
 #if !DEBUG
             try {
 #endif
+                var args = Environment.GetCommandLineArgs();
+                if (args.Length > 1) {
+                    string[] logParams = { "log", "-log", "/log", "l", "-l", "/l" };
+                    if (logParams.Contains(args[1], StringComparer.InvariantCultureIgnoreCase)) {
+                        Log.Instance.ShouldSave = true;
+                    }
+                }
                 App.Main();
 #if !DEBUG
             }
             catch (Exception ex) {
                 Log log = Log.Instance;
-                log.Error(string.Format("Message: {0}\r\nStack trace:\r\n{1}", ex.Message, ex.StackTrace));
+                log.Error(string.Format("Type: {0}\r\nMessage: {1}\r\nStack trace:\r\n{2}", ex.GetType(), ex.Message, ex.StackTrace));
                 log.Save();
                 throw;
             }

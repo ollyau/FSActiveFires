@@ -11,8 +11,7 @@ namespace FSActiveFires {
 
         public MainViewModel() {
             log = Log.Instance;
-            log.Info("FS Active Fires by Orion Lyau\r\nVersion: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + "\r\n");
-
+            log.WriteLine(string.Format("FS Active Fires by Orion Lyau\r\nVersion: {0}\r\n", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version));
             activeFires = new MODISHotspots();
             SelectedDatasetUrl = activeFires.datasets["World"];
 
@@ -27,7 +26,9 @@ namespace FSActiveFires {
             get {
                 if (_connectCommand == null) {
                     _connectCommand = new RelayCommand(param => {
+                        log.Info("ConnectCommand");
                         if (!IsConnected) {
+                            log.Info(string.Format("Minimum detection confidence: {0}%", MinimumConfidence));
                             sc.AddLocations(SimObjectTitle, activeFires.hotspots.Where(x => x.Confidence >= MinimumConfidence));
                             sc.Connect();
                         }
@@ -48,12 +49,13 @@ namespace FSActiveFires {
 #if !DEBUG
                         try {
 #endif
+                            log.Info("DownloadCommand");
                             activeFires.LoadData(SelectedDatasetUrl);
                             OnPropertyChanged("TotalFiresCount");
 #if !DEBUG
                         }
                         catch (Exception ex) {
-                            string message = string.Format("Message: {0}\r\nStack trace:\r\n{1}", ex.Message, ex.StackTrace);
+                            string message = string.Format("Type: {0}\r\nMessage: {1}\r\nStack trace:\r\n{2}", ex.GetType(), ex.Message, ex.StackTrace);
                             log.Error(message);
                             System.Windows.MessageBox.Show(message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                         }
@@ -69,6 +71,7 @@ namespace FSActiveFires {
             get {
                 if (_relocateUserCommand == null) {
                     _relocateUserCommand = new RelayCommand(param => {
+                        log.Info("RelocateUserCommand");
                         sc.RelocateUserRandomly();
                     }, param => IsConnected);
                 }
@@ -84,12 +87,13 @@ namespace FSActiveFires {
 #if !DEBUG
                         try {
 #endif
+                            log.Info("InstallCommand");
                             FireEffect.InstallSimObject();
                             SimObjectTitle = "Fire_Effect";
 #if !DEBUG
                         }
                         catch (Exception ex) {
-                            string message = string.Format("Message: {0}\r\nStack trace:\r\n{1}", ex.Message, ex.StackTrace);
+                            string message = string.Format("Type: {0}\r\nMessage: {1}\r\nStack trace:\r\n{2}", ex.GetType(), ex.Message, ex.StackTrace);
                             log.Error(message);
                             System.Windows.MessageBox.Show(message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                         }
@@ -105,7 +109,7 @@ namespace FSActiveFires {
             get {
                 if (_nasaCommand == null) {
                     _nasaCommand = new RelayCommand(param => {
-                        log.Info("Opening NASA website.");
+                        log.Info("NASACommand");
                         System.Diagnostics.Process.Start("https://earthdata.nasa.gov/firms");
                     });
                 }
@@ -122,15 +126,7 @@ namespace FSActiveFires {
                         if (IsConnected) {
                             sc.Disconnect();
                         }
-                        var args = Environment.GetCommandLineArgs();
-                        if (args.Count() > 0) {
-                            if (args[0].Equals("log", StringComparison.InvariantCultureIgnoreCase)) {
-                                log.Save();
-                            }
-                        }
-                        else {
-                            log.SaveIfError();
-                        }
+                        log.ConditionalSave();
                     });
                 }
                 return _closingCommand;

@@ -36,15 +36,16 @@ namespace FSActiveFires {
 
         private string CreateTemporaryDirectory() {
             string tempDirectory = Path.Combine(Path.GetTempPath(), "FSActiveFires", Path.GetRandomFileName());
-            log.Info(string.Format("Creating temp directory: {0}", tempDirectory));
+            log.Info(string.Format("Create temporary directory: {0}", tempDirectory));
             Directory.CreateDirectory(tempDirectory);
             return tempDirectory;
         }
 
         public void RemoveTemporaryDirectory() {
-            if (Directory.Exists(tempDirectory)) {
-                log.Info(string.Format("Removing temp directory: {0}", tempDirectory));
-                Directory.Delete(tempDirectory, true);
+            string tempDirectoryRoot = Path.Combine(Path.GetTempPath(), "FSActiveFires");
+            if (Directory.Exists(tempDirectoryRoot)) {
+                log.Info(string.Format("Delete temporary directory: {0}", tempDirectoryRoot));
+                Directory.Delete(tempDirectoryRoot, true);
             }
         }
 
@@ -53,7 +54,7 @@ namespace FSActiveFires {
                 LoadShapefileHotspots(DownloadShapefileData(datasetFormatString));
             }
             catch (Exception ex) {
-                log.Warning("Unable to download or load SHP; attempting to load CSV.");
+                log.Warning("Unable to download or load SHP; attempting to use CSV.");
                 log.Warning(string.Format("Message: {0}\r\nStack trace:\r\n{1}", ex.Message, ex.StackTrace));
                 LoadCsvHotspots(DownloadCsvData(datasetFormatString));
             }
@@ -71,7 +72,7 @@ namespace FSActiveFires {
             }
 
             using (WebClient webClient = new WebClient()) {
-                log.Info(string.Format("Downloading ZIP: {0} -> {1}", webUrl, zipFilePath));
+                log.Info(string.Format("Download ZIP: {0} -> {1}", webUrl, zipFilePath));
                 webClient.DownloadFile(webUrl, zipFilePath);
             }
 
@@ -79,9 +80,9 @@ namespace FSActiveFires {
                 throw new FileNotFoundException("ZIP file was not downloaded.");
             }
 
-            log.Info(string.Format("Extracting ZIP: {0} -> {1}", zipFilePath, tempDirectory));
+            log.Info(string.Format("Extract ZIP: {0} -> {1}", zipFilePath, tempDirectory));
             ZipFile.ExtractToDirectory(zipFilePath, tempDirectory);
-            log.Info(string.Format("Deleteing ZIP: {0}", zipFilePath));
+            log.Info(string.Format("Delete ZIP: {0}", zipFilePath));
             File.Delete(zipFilePath);
 
             if (File.Exists(shapefilePath)) {
@@ -103,7 +104,7 @@ namespace FSActiveFires {
             }
 
             using (WebClient webClient = new WebClient()) {
-                log.Info(string.Format("Downloading CSV: {0} -> {1}", webUrl, filePath));
+                log.Info(string.Format("Download CSV: {0} -> {1}", webUrl, filePath));
                 webClient.DownloadFile(webUrl, filePath);
             }
 
@@ -116,7 +117,7 @@ namespace FSActiveFires {
         }
 
         private void LoadShapefileHotspots(string shapefilePath) {
-            log.Info("Parsing shapefile.");
+            log.Info(string.Format("Parsing shapefile: {0}", shapefilePath));
             using (Shapefile shp = new Shapefile(shapefilePath)) {
                 foreach (Shape shape in shp) {
                     if (shape.Type == ShapeType.Point) {
@@ -128,10 +129,11 @@ namespace FSActiveFires {
                     }
                 }
             }
+            log.Info(string.Format("Total hotspots parsed: {0}", hotspots.Count));
         }
 
         private void LoadCsvHotspots(string csvPath) {
-            log.Info("Parsing CSV.");
+            log.Info(string.Format("Parsing CSV: {0}", csvPath));
             using (StreamReader sr = new StreamReader(csvPath)) {
                 string line;
                 while ((line = sr.ReadLine()) != null) {
@@ -144,6 +146,7 @@ namespace FSActiveFires {
                     }
                 }
             }
+            log.Info(string.Format("Total hotspots parsed: {0}", hotspots.Count));
         }
     }
 }

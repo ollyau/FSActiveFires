@@ -27,8 +27,6 @@ namespace FSActiveFires {
         }
 
         public static void InstallSimObject() {
-            Log.Instance.Info("Installing SimObject.");
-
             const string modelName = "Fire_Effect";
             const string modelWebLocation = "http://www.eaglerotorcraftsimulations.com/downloads/FireEffect.MDL";
 
