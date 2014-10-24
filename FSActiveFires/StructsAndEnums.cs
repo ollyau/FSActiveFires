@@ -1,9 +1,4 @@
 ﻿using BeatlesBlog.SimConnect;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FSActiveFires {
     /// <summary>
@@ -24,11 +19,10 @@ namespace FSActiveFires {
     /// </summary>
     enum Requests {
         DisplayText,
-        CreateAI,
         RemoveAI,
         UserPosition,
 
-        AIAddInfo = 0x01000000,
+        AICreateBase = 0x01000000,
     }
 
     /// <summary>

@@ -1,16 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FSActiveFires {
-    /// <summary>
-    /// Adapted from http://www.digitallycreated.net/Blog/61/combining-multiple-assemblies-into-a-single-exe-for-a-wpf-application
-    /// </summary>
     class Program {
         [STAThreadAttribute]
         public static void Main() {

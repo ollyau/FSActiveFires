@@ -16,7 +16,6 @@ WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 \***************************************************************************/
 
 using System;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 

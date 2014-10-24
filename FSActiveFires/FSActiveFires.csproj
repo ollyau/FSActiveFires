@@ -40,6 +40,9 @@
   <PropertyGroup>
     <ApplicationIcon>ActiveFires_Icon.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="BeatlesBlog.SimConnect">
       <HintPath>..\..\..\Libraries\BeatlesBlog.SimConnect.SDK\Libs\BeatlesBlog.SimConnect.dll</HintPath>
@@ -68,11 +71,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AutoScrollHelper.cs" />
+    <Compile Include="Coordinate.cs" />
+    <Compile Include="FireEffect.cs" />
+    <Compile Include="Hotspot.cs" />
     <Compile Include="Ini.cs" />
+    <Compile Include="Log.cs" />
+    <Compile Include="MODISHotspots.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="RelayCommand.cs" />
     <Compile Include="SimConnectInstance.cs" />
+    <Compile Include="SimObject.cs" />
     <Compile Include="StructsAndEnums.cs" />
     <Compile Include="ValueConverters.cs" />
     <Compile Include="NotifyPropertyChanged.cs" />
@@ -108,6 +116,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

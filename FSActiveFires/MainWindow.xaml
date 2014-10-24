@@ -10,12 +10,7 @@
     <Window.Resources>
         <local:ConnectedTitleConverter x:Key="ConnectedTitleConverter"/>
         <local:ConnectedButtonConverter x:Key="ConnectedButtonConverter"/>
-        <local:CreateObjectsConverter x:Key="CreateObjectsConverter"/>
-        <local:CreatedObjectsInSimConverter x:Key="CreatedObjectsInSimConverter"/>
-        <local:TotalFiresCountConverter x:Key="TotalFiresCountConverter"/>
-
         <local:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
-        <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </Window.Resources>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing" >
@@ -27,11 +22,11 @@
             <GroupBox Header="Information" Padding="3">
                 <TextBlock TextWrapping="Wrap">
                     <Run Text="This program uses active fire data from the NASA website to create fires in Flight Simulator.  More information on the data is available from the"/>
-                    <Hyperlink Command="{Binding NASACommand}"> <Run Text="NASA FIRMS website"/></Hyperlink>
+                    <Hyperlink Command="{Binding NASACommand}"><Run Text="NASA FIRMS website"/></Hyperlink>
                     <Run Text="."/>
                 </TextBlock>
             </GroupBox>
-            <GroupBox Header="Settings">
+            <GroupBox Header="Settings" IsEnabled="{Binding IsConnected, Converter={StaticResource InverseBooleanConverter}}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"/>
@@ -44,24 +39,27 @@
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock  Grid.Row="0" Grid.Column="0" Padding="2" TextAlignment="Right" VerticalAlignment="Center" Text="Dataset: " />
-                    <ComboBox   Grid.Row="0" Grid.Column="1" Margin="5" ItemsSource="{Binding Datasets}" DisplayMemberPath="Key" SelectedValuePath="Value" SelectedValue="{Binding SelectedDataset, Mode=TwoWay}" />
-
-                    <TextBlock  Grid.Row="1" Grid.Column="0" Padding="2" TextAlignment="Right" VerticalAlignment="Center" Text="SimObject Title: " />
-                    <Grid Grid.Row="1" Grid.Column="1">
+                    <TextBlock  Grid.Row="0" Grid.Column="0" Padding="2" TextAlignment="Right" VerticalAlignment="Center" Text="SimObject" />
+                    <Grid Grid.Row="0" Grid.Column="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBox    Grid.Column="0" Padding="2" Margin="5" Text="{Binding SimObjectTitle, Mode=TwoWay}" />
-                        <Button     Grid.Column="1" Padding="3" Margin="5" Content="Install Model" Command="{Binding InstallCommand}" />
+                        <TextBox Grid.Column="0" Padding="2" Margin="5,5,3,5" Text="{Binding SimObjectTitle, Mode=TwoWay}" />
+                        <Button Grid.Column="1" Padding="3" Margin="3,5,5,5" Content="Install Model" Command="{Binding InstallCommand}" />
                     </Grid>
 
-                    <TextBlock  Grid.Row="2" Grid.Column="0" Padding="2" TextAlignment="Right" VerticalAlignment="Center" Text="Minimum&#x0a;Confidence" HorizontalAlignment="Center" />
-                    <Slider Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding MinimumConfidence, Mode=TwoWay}" IsSnapToTickEnabled="True" VerticalAlignment="Center" TickPlacement="BottomRight" TickFrequency="5"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Padding="2" TextAlignment="Right" VerticalAlignment="Center" Text="Dataset" />
+                    <ComboBox Grid.Row="1" Grid.Column="1" Margin="5" ItemsSource="{Binding Datasets}" DisplayMemberPath="Key" SelectedValuePath="Value" SelectedValue="{Binding SelectedDatasetUrl, Mode=TwoWay}" />
 
-                    <TextBlock  Grid.Row="3" Grid.Column="1" Padding="3" Margin="5" Text="{Binding TotalFiresCount, Converter={StaticResource TotalFiresCountConverter}}" />
-                    <Button     Grid.Row="3" Grid.Column="1" Padding="3" Margin="5,5,5,0" Content="Download Data" VerticalAlignment="Center" HorizontalAlignment="Right" Command="{Binding DownloadCommand}" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" Padding="2" TextAlignment="Right" VerticalAlignment="Center" Text="Minimum&#x0a;Confidence" />
+                    <Slider Grid.Row="2" Grid.Column="1" Margin="5" Minimum="0" Maximum="100" Value="{Binding MinimumConfidence, Mode=TwoWay}" IsSnapToTickEnabled="True" VerticalAlignment="Center" TickPlacement="BottomRight" TickFrequency="5"/>
+
+                    <StackPanel Grid.Row="3" Grid.Column="1" Margin="5" Orientation="Horizontal">
+                        <TextBlock Padding="3" Text="Total fires downloaded:" />
+                        <TextBlock Padding="3" Text="{Binding TotalFiresCount}" />
+                    </StackPanel>
+                    <Button Grid.Row="3" Grid.Column="1" Padding="3" Margin="5" Content="Download Data" VerticalAlignment="Center" HorizontalAlignment="Right" Command="{Binding DownloadCommand}" />
                 </Grid>
             </GroupBox>
             <GroupBox Header="{Binding IsConnected, Converter={StaticResource ConnectedTitleConverter}}">
@@ -72,18 +70,13 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Button x:Name="Button_Connect"        Grid.Column="0" Padding="3" Margin="5" Content="{Binding IsConnected, Converter={StaticResource ConnectedButtonConverter}}" Command="{Binding ConnectCommand}"/>
-                        <!--<Button x:Name="Button_CreateObjects"  Grid.Column="1" Padding="3" Margin="5" Content="Create Objects" IsEnabled="{Binding IsConnected}"/>
-                        <Button x:Name="Button_RemoveObjects"  Grid.Column="2" Padding="3" Margin="5" Content="Remove Objects" IsEnabled="{Binding ObjectsCreated}"/>-->
                         <Button x:Name="Button_Test"           Grid.Column="1" Padding="3" Margin="5" Content="Move User to Random Fire"  Command="{Binding RelocateUserCommand}" />
                     </Grid>
-                    <TextBlock Margin="5" Text="{Binding CreatedSimObjectsCount, Converter={StaticResource CreatedObjectsInSimConverter}}" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="5,5,2,5" Text="Fires in simulation:" />
+                        <TextBlock Margin="2,5,5,5" Text="{Binding CreatedSimObjectsCount}" />
+                    </StackPanel>
                 </StackPanel>
-            </GroupBox>
-
-            <GroupBox Header="Output" Height="200" Visibility="{Binding Path=LoggingEnabled, Converter={StaticResource BoolToVis}}">
-                <ScrollViewer local:AutoScrollHelper.AutoScroll="{Binding IsLogsChangedPropertyInViewModel}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                    <TextBlock Text="{Binding TextOutput}" TextWrapping="Wrap"/>
-                </ScrollViewer>
             </GroupBox>
         </StackPanel>
     </Grid>
