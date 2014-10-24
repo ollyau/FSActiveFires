@@ -5,6 +5,10 @@ FSActiveFires
 
 A utility that downloads active fire data from the NASA website to create fires in Microsoft Flight Simulator.
 
+![Regions](http://i.imgur.com/adALBtK.jpg)
+
+Region image from the [NASA website](https://earthdata.nasa.gov/data/near-real-time-data/firms/active-fire-data).
+
 Credits & Acknowledgements
 ---
 - Brandon Filer   - Creating the model that emits the fire effect and creating the icon for the program.
