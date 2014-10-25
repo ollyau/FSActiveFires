@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace FSActiveFires {
@@ -21,23 +22,30 @@ namespace FSActiveFires {
 
         #region Command Bindings
 
-        private ICommand _connectCommand;
-        public ICommand ConnectCommand {
+        private ICommand _installCommand;
+        public ICommand InstallCommand {
             get {
-                if (_connectCommand == null) {
-                    _connectCommand = new RelayCommand(param => {
-                        log.Info("ConnectCommand");
-                        if (!IsConnected) {
-                            log.Info(string.Format("Minimum detection confidence: {0}%", MinimumConfidence));
-                            sc.AddLocations(SimObjectTitle, activeFires.hotspots.Where(x => x.Confidence >= MinimumConfidence));
-                            sc.Connect();
+                if (_installCommand == null) {
+                    _installCommand = new RelayCommandAsync(async _ => {
+#if !DEBUG
+                        try {
+#endif
+                            log.Info("InstallCommand");
+                            await Task.Run(() => {
+                                FireEffect.InstallSimObject();
+                            });
+                            SimObjectTitle = "Fire_Effect";
+#if !DEBUG
                         }
-                        else {
-                            sc.Disconnect();
+                        catch (Exception ex) {
+                            string message = string.Format("Type: {0}\r\nMessage: {1}\r\nStack trace:\r\n{2}", ex.GetType(), ex.Message, ex.StackTrace);
+                            log.Error(message);
+                            System.Windows.MessageBox.Show(message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                         }
+#endif
                     });
                 }
-                return _connectCommand;
+                return _installCommand;
             }
         }
 
@@ -45,12 +53,14 @@ namespace FSActiveFires {
         public ICommand DownloadCommand {
             get {
                 if (_downloadCommand == null) {
-                    _downloadCommand = new RelayCommand(param => {
+                    _downloadCommand = new RelayCommandAsync(async _ => {
 #if !DEBUG
                         try {
 #endif
                             log.Info("DownloadCommand");
-                            activeFires.LoadData(SelectedDatasetUrl);
+                            await Task.Run(() => {
+                                activeFires.LoadData(SelectedDatasetUrl);
+                            });
                             OnPropertyChanged("TotalFiresCount");
 #if !DEBUG
                         }
@@ -66,41 +76,42 @@ namespace FSActiveFires {
             }
         }
 
+        private ICommand _connectCommand;
+        public ICommand ConnectCommand {
+            get {
+                if (_connectCommand == null) {
+                    _connectCommand = new RelayCommandAsync(async _ => {
+                        log.Info("ConnectCommand");
+                        if (!IsConnected) {
+                            log.Info(string.Format("Minimum detection confidence: {0}%", MinimumConfidence));
+                            await Task.Run(() => {
+                                sc.AddLocations(SimObjectTitle, activeFires.hotspots.Where(x => x.Confidence >= MinimumConfidence));
+                                sc.Connect();
+                            });
+                        }
+                        else {
+                            await Task.Run(() => {
+                                sc.Disconnect();
+                            });
+                        }
+                    });
+                }
+                return _connectCommand;
+            }
+        }
+
         private ICommand _relocateUserCommand;
         public ICommand RelocateUserCommand {
             get {
                 if (_relocateUserCommand == null) {
-                    _relocateUserCommand = new RelayCommand(param => {
+                    _relocateUserCommand = new RelayCommandAsync(async _ => {
                         log.Info("RelocateUserCommand");
-                        sc.RelocateUserRandomly();
-                    }, param => IsConnected);
-                }
-                return _relocateUserCommand;
-            }
-        }
-
-        private ICommand _installCommand;
-        public ICommand InstallCommand {
-            get {
-                if (_installCommand == null) {
-                    _installCommand = new RelayCommand(param => {
-#if !DEBUG
-                        try {
-#endif
-                            log.Info("InstallCommand");
-                            FireEffect.InstallSimObject();
-                            SimObjectTitle = "Fire_Effect";
-#if !DEBUG
-                        }
-                        catch (Exception ex) {
-                            string message = string.Format("Type: {0}\r\nMessage: {1}\r\nStack trace:\r\n{2}", ex.GetType(), ex.Message, ex.StackTrace);
-                            log.Error(message);
-                            System.Windows.MessageBox.Show(message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-                        }
-#endif
+                        await Task.Run(() => {
+                            sc.RelocateUserRandomly();
+                        });
                     });
                 }
-                return _installCommand;
+                return _relocateUserCommand;
             }
         }
 
@@ -135,7 +146,16 @@ namespace FSActiveFires {
             get {
                 if (_closingCommand == null) {
                     _closingCommand = new RelayCommand(param => {
-                        activeFires.RemoveTemporaryDirectory();
+#if !DEBUG
+                        try {
+#endif
+                            activeFires.RemoveTemporaryDirectory();
+#if !DEBUG
+                        }
+                        catch (Exception ex) {
+                            log.Warning(string.Format("Unable to remove temporary directory.\r\nType: {0}\r\nMessage: {1}\r\nStack trace:\r\n{2}", ex.GetType(), ex.Message, ex.StackTrace));
+                        }
+#endif
                         if (IsConnected) {
                             sc.Disconnect();
                         }

@@ -17,7 +17,7 @@ namespace FSActiveFires {
         private const double RADIUS_EARTH_M = 6378137; // for use with spherical law of cosines
 
         private bool _isConnected;
-        public bool IsConnected { get { return _isConnected; } private set { SetProperty(ref _isConnected, value); System.Windows.Input.CommandManager.InvalidateRequerySuggested(); } }
+        public bool IsConnected { get { return _isConnected; } private set { SetProperty(ref _isConnected, value); } }
 
         public int CreatedSimObjectsCount { get { return ObjectsInSimulation.Count; } } // make sure to manually trigger OnPropertyChanged
 
@@ -51,6 +51,7 @@ namespace FSActiveFires {
             log.Info("Closing SimConnect connection.");
             sc.Close();
             IsConnected = false;
+            AllObjects.Clear();
             ObjectsInSimulation.Clear();
             OnPropertyChanged("CreatedSimObjectsCount");
         }

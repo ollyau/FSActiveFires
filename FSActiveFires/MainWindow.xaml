@@ -49,7 +49,7 @@
                         <Button Grid.Column="1" Padding="3" Margin="3,5,5,5" Content="Install Model" Command="{Binding InstallCommand}" />
                     </Grid>
 
-                    <TextBlock Grid.Row="1" Grid.Column="0" Padding="2" TextAlignment="Right" VerticalAlignment="Center" Text="Dataset" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Padding="2" TextAlignment="Right" VerticalAlignment="Center" Text="Region" />
                     <ComboBox Grid.Row="1" Grid.Column="1" Margin="5" ItemsSource="{Binding Datasets}" DisplayMemberPath="Key" SelectedValuePath="Value" SelectedValue="{Binding SelectedDatasetUrl, Mode=TwoWay}" />
 
                     <TextBlock Grid.Row="2" Grid.Column="0" Padding="2" TextAlignment="Right" VerticalAlignment="Center" Text="Minimum&#x0a;Confidence" />
@@ -70,7 +70,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Button x:Name="Button_Connect"        Grid.Column="0" Padding="3" Margin="5" Content="{Binding IsConnected, Converter={StaticResource ConnectedButtonConverter}}" Command="{Binding ConnectCommand}"/>
-                        <Button x:Name="Button_Test"           Grid.Column="1" Padding="3" Margin="5" Content="Move User to Random Fire"  Command="{Binding RelocateUserCommand}" />
+                        <Button x:Name="Button_Test"           Grid.Column="1" Padding="3" Margin="5" Content="Move User to Random Fire"  Command="{Binding RelocateUserCommand}" IsEnabled="{Binding IsConnected}"/>
                     </Grid>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Margin="5,5,2,5" Text="Fires in simulation:" />

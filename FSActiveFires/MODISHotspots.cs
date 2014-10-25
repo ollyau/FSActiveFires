@@ -54,8 +54,7 @@ namespace FSActiveFires {
                 LoadShapefileHotspots(DownloadShapefileData(datasetFormatString));
             }
             catch (Exception ex) {
-                log.Warning("Unable to download or load SHP; attempting to use CSV.");
-                log.Warning(string.Format("Message: {0}\r\nStack trace:\r\n{1}", ex.Message, ex.StackTrace));
+                log.Warning(string.Format("Unable to download or load SHP; attempting to use CSV.\r\nType: {0}\r\nMessage: {1}\r\nStack trace:\r\n{2}", ex.GetType(), ex.Message, ex.StackTrace));
                 LoadCsvHotspots(DownloadCsvData(datasetFormatString));
             }
         }
@@ -129,24 +128,30 @@ namespace FSActiveFires {
                     }
                 }
             }
-            log.Info(string.Format("Total hotspots parsed: {0}", hotspots.Count));
+            log.Info(string.Format("Cumulative hotspots parsed: {0}", hotspots.Count));
         }
 
         private void LoadCsvHotspots(string csvPath) {
             log.Info(string.Format("Parsing CSV: {0}", csvPath));
             using (StreamReader sr = new StreamReader(csvPath)) {
-                string line;
-                while ((line = sr.ReadLine()) != null) {
-                    var tokens = line.Split(',');
-                    double lat;
-                    double lon;
-                    int confidence;
-                    if (double.TryParse(tokens[0], out lat) && double.TryParse(tokens[1], out lon) && int.TryParse(tokens[8], out confidence)) {
-                        hotspots.Add(new Hotspot(lat, lon, confidence));
+                string line = sr.ReadLine();
+                var fields = line.Split(',');
+                if (fields[0].Equals("latitude") && fields[1].Equals("longitude") && fields[8].Equals("confidence")) {
+                    while ((line = sr.ReadLine()) != null) {
+                        fields = line.Split(',');
+                        double lat;
+                        double lon;
+                        int confidence;
+                        if (double.TryParse(fields[0], out lat) && double.TryParse(fields[1], out lon) && int.TryParse(fields[8], out confidence)) {
+                            hotspots.Add(new Hotspot(lat, lon, confidence));
+                        }
                     }
                 }
+                else {
+                    throw new FileFormatException("Unexpected data format.");
+                }
             }
-            log.Info(string.Format("Total hotspots parsed: {0}", hotspots.Count));
+            log.Info(string.Format("Cumulative hotspots parsed: {0}", hotspots.Count));
         }
     }
 }

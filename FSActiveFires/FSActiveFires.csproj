@@ -79,6 +79,7 @@
     <Compile Include="MODISHotspots.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="RelayCommand.cs" />
+    <Compile Include="RelayCommandAsync.cs" />
     <Compile Include="SimConnectInstance.cs" />
     <Compile Include="SimObject.cs" />
     <Compile Include="StructsAndEnums.cs" />
