@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -32,7 +33,16 @@ namespace FSActiveFires {
 #endif
                             log.Info("InstallCommand");
                             await Task.Run(() => {
-                                FireEffect.InstallSimObject();
+                                string[] allSims = { SimInfo.FsxDirectory, SimInfo.P3dDirectory, SimInfo.P3d2Directory };
+                                var simDirs = allSims.Where(x => !string.IsNullOrEmpty(x));
+                                if (simDirs.Count() > 0) {
+                                    foreach (var sim in simDirs) {
+                                        FireEffect.InstallSimObject(sim);
+                                    }
+                                }
+                                else {
+                                    throw new DirectoryNotFoundException("No simulator directories found.");
+                                }
                             });
                             SimObjectTitle = "Fire_Effect";
 #if !DEBUG

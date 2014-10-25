@@ -81,6 +81,7 @@
     <Compile Include="RelayCommand.cs" />
     <Compile Include="RelayCommandAsync.cs" />
     <Compile Include="SimConnectInstance.cs" />
+    <Compile Include="SimInfo.cs" />
     <Compile Include="SimObject.cs" />
     <Compile Include="StructsAndEnums.cs" />
     <Compile Include="ValueConverters.cs" />

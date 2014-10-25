@@ -5,34 +5,13 @@ using System.Net;
 
 namespace FSActiveFires {
     class FireEffect {
-        private static string fsxDirectory;
-        private static string FsxDirectory { get { return string.IsNullOrEmpty(fsxDirectory) ? GetFsxDirectory() : fsxDirectory; } }
-
-        private static string GetFsxDirectory() {
-            fsxDirectory = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\microsoft games\flight simulator\10.0", "SetupPath", null);
-
-            if (string.IsNullOrEmpty(fsxDirectory)) {
-                fsxDirectory = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\microsoft games\flight simulator\10.0", "SetupPath", null);
-            }
-
-            if (!string.IsNullOrEmpty(fsxDirectory) && !fsxDirectory.EndsWith("\\")) {
-                fsxDirectory = fsxDirectory.Insert(fsxDirectory.Length, "\\");
-            }
-
-            if (string.IsNullOrWhiteSpace(fsxDirectory) || !Directory.Exists(fsxDirectory) || !File.Exists(Path.Combine(fsxDirectory, "fsx.exe"))) {
-                throw new DirectoryNotFoundException("Unable to locate the Flight Simulator X root directory.");
-            }
-
-            return fsxDirectory;
-        }
-
-        public static void InstallSimObject() {
+        public static void InstallSimObject(string simDirectory) {
             const string modelName = "Fire_Effect";
             const string modelWebLocation = "http://www.eaglerotorcraftsimulations.com/downloads/FireEffect.MDL";
 
             string[] directories = {
-                                       Path.Combine(FsxDirectory, @"SimObjects\Misc\Fire_Effect"),
-                                       Path.Combine(FsxDirectory, @"SimObjects\Misc\Fire_Effect\model")
+                                       Path.Combine(simDirectory, @"SimObjects\Misc\Fire_Effect"),
+                                       Path.Combine(simDirectory, @"SimObjects\Misc\Fire_Effect\model")
                                    };
 
             string[] files = {

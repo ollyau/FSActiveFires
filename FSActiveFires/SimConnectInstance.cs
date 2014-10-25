@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace FSActiveFires {
     class SimConnectInstance : NotifyPropertyChanged {
@@ -67,7 +68,7 @@ namespace FSActiveFires {
             sc.SubscribeToSystemEvent(Events.AddObject, "ObjectAdded");
             sc.SubscribeToSystemEvent(Events.RemoveObject, "ObjectRemoved");
 
-            sc.Text(SIMCONNECT_TEXT_TYPE.PRINT_WHITE, 5.0f, Requests.DisplayText, appName + " is connected to " + data.szApplicationName);
+            sc.Text(SIMCONNECT_TEXT_TYPE.PRINT_WHITE, 5.0f, Requests.DisplayText, appName + " is connected to " + Encoding.UTF8.GetString(Encoding.Default.GetBytes(data.szApplicationName)));
 
             //sc.RequestDataOnUserSimObject(Requests.UserPosition, SIMCONNECT_PERIOD.SECOND, SIMCONNECT_DATA_REQUEST_FLAG.CHANGED, 0, 10, typeof(LatLon)); // Request user position every 10 seconds
             sc.RequestDataOnUserSimObject(Requests.UserPosition, SIMCONNECT_PERIOD.SECOND, SIMCONNECT_DATA_REQUEST_FLAG.CHANGED, typeof(LatLon));
