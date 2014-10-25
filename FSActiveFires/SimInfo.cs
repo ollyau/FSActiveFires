@@ -16,8 +16,8 @@ namespace FSActiveFires {
         const string P3D_REG_KEY = @"HKEY_LOCAL_MACHINE\SOFTWARE\LockheedMartin\Prepar3D";
         const string P3D2_REG_KEY = @"HKEY_LOCAL_MACHINE\SOFTWARE\Lockheed Martin\Prepar3D v2";
 
-        private static string GetSimDirectory(string regKey, ref string staticDirectoryString) {
-            var simDirectory = (string)Registry.GetValue(regKey, "SetupPath", null);
+        private static string GetSimDirectory(string regKey, ref string simDirectory) {
+            simDirectory = (string)Registry.GetValue(regKey, "SetupPath", null);
 
             if (string.IsNullOrEmpty(simDirectory)) {
                 simDirectory = (string)Registry.GetValue(regKey.Insert("HKEY_LOCAL_MACHINE\\SOFTWARE\\".Length, "Wow6432Node\\"), "SetupPath", null);

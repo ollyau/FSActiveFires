@@ -1,6 +1,7 @@
 ﻿using Catfood.Shapefile;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
@@ -142,7 +143,9 @@ namespace FSActiveFires {
                         double lat;
                         double lon;
                         int confidence;
-                        if (double.TryParse(fields[0], out lat) && double.TryParse(fields[1], out lon) && int.TryParse(fields[8], out confidence)) {
+                        if (double.TryParse(fields[0], NumberStyles.Number, CultureInfo.InvariantCulture, out lat) &&
+                            double.TryParse(fields[1], NumberStyles.Number, CultureInfo.InvariantCulture, out lon) &&
+                            int.TryParse(fields[8], NumberStyles.Number, CultureInfo.InvariantCulture, out confidence)) {
                             hotspots.Add(new Hotspot(lat, lon, confidence));
                         }
                     }
