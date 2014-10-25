@@ -16,6 +16,7 @@ WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 \***************************************************************************/
 
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -26,11 +27,11 @@ namespace iniLib {
         [DllImport("kernel32.dll")]
         private static extern bool WritePrivateProfileString(string section, string key, string value, string filePath);
         [DllImport("kernel32.dll")]
-        private static extern ulong GetPrivateProfileString(string section, string key, string defValue, StringBuilder retVal, ulong size, string filePath);
+        private static extern uint GetPrivateProfileString(string section, string key, string defValue, StringBuilder retVal, uint size, string filePath);
         [DllImport("kernel32.dll")]
-        private static extern ulong GetPrivateProfileString(string section, int key, string value, [MarshalAs(UnmanagedType.LPArray)] byte[] result, ulong size, string filePath);
+        private static extern uint GetPrivateProfileString(string section, int key, string value, [MarshalAs(UnmanagedType.LPArray)] byte[] result, uint size, string filePath);
         [DllImport("kernel32.dll")]
-        private static extern ulong GetPrivateProfileString(int section, string key, string value, [MarshalAs(UnmanagedType.LPArray)] byte[] result, ulong size, string filePath);
+        private static extern uint GetPrivateProfileString(int section, string key, string value, [MarshalAs(UnmanagedType.LPArray)] byte[] result, uint size, string filePath);
         [DllImport("kernel32.dll")]
         private static extern bool WritePrivateProfileSection(string section, string value, string filePath);
 
@@ -59,7 +60,7 @@ namespace iniLib {
         /// </summary>
         /// <returns>Array of category names</returns>
         public string[] GetCategoryNames() {
-            for (ulong maxsize = 500; true; maxsize *= 2) {
+            for (uint maxsize = 500; true; maxsize *= 2) {
                 byte[] bytes = new byte[maxsize];
                 int size = (int)GetPrivateProfileString(0, "", "", bytes, maxsize, path);
 
@@ -76,7 +77,7 @@ namespace iniLib {
         /// <param name="section">The section to read from</param>
         /// <returns>Array of key names</returns>
         public string[] GetKeyNames(string section) {
-            for (ulong maxsize = 500; true; maxsize *= 2) {
+            for (uint maxsize = 500; true; maxsize *= 2) {
                 byte[] bytes = new byte[maxsize];
                 int size = (int)GetPrivateProfileString(section, 0, "", bytes, maxsize, path);
 
