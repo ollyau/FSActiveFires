@@ -35,11 +35,11 @@ namespace FSActiveFires {
         }
 
         public static string P3dDirectory {
-            get { return string.IsNullOrEmpty(fsxDirectory) ? GetSimDirectory(P3D_REG_KEY, ref  p3dDirectory) : p3dDirectory; }
+            get { return string.IsNullOrEmpty(p3dDirectory) ? GetSimDirectory(P3D_REG_KEY, ref p3dDirectory) : p3dDirectory; }
         }
 
         public static string P3d2Directory {
-            get { return string.IsNullOrEmpty(fsxDirectory) ? GetSimDirectory(P3D2_REG_KEY, ref p3d2Directory) : p3d2Directory; }
+            get { return string.IsNullOrEmpty(p3d2Directory) ? GetSimDirectory(P3D2_REG_KEY, ref p3d2Directory) : p3d2Directory; }
         }
     }
 }
