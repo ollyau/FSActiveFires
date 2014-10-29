@@ -24,7 +24,7 @@ namespace FSActiveFires {
             }
             catch (Exception ex) {
                 Log log = Log.Instance;
-                log.Error(string.Format("Type: {0}\r\nMessage: {1}\r\nStack trace:\r\n{2}", ex.GetType(), ex.Message, ex.StackTrace));
+                log.Error(ex.ToString());
                 log.Save();
                 throw;
             }

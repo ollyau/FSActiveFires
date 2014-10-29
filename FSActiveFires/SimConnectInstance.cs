@@ -43,8 +43,8 @@ namespace FSActiveFires {
                 log.Info("Opening SimConnect connection.");
                 sc.Open(appName);
             }
-            catch (SimConnect.SimConnectException) {
-                log.Info("Local connection failed.");
+            catch (SimConnect.SimConnectException ex) {
+                log.Warning(string.Format("Local connection failed.\r\n{0}", ex.ToString()));
             }
         }
 

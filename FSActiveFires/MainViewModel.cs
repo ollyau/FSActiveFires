@@ -48,9 +48,8 @@ namespace FSActiveFires {
 #if !DEBUG
                         }
                         catch (Exception ex) {
-                            string message = string.Format("Type: {0}\r\nMessage: {1}\r\nStack trace:\r\n{2}", ex.GetType(), ex.Message, ex.StackTrace);
-                            log.Error(message);
-                            System.Windows.MessageBox.Show(message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                            log.Error(ex.ToString());
+                            System.Windows.MessageBox.Show(string.Format("Error while installing SimObject.\r\n{0}: {1}", ex.GetType(), ex.Message), "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                         }
 #endif
                     });
@@ -75,9 +74,8 @@ namespace FSActiveFires {
 #if !DEBUG
                         }
                         catch (Exception ex) {
-                            string message = string.Format("Type: {0}\r\nMessage: {1}\r\nStack trace:\r\n{2}", ex.GetType(), ex.Message, ex.StackTrace);
-                            log.Error(message);
-                            System.Windows.MessageBox.Show(message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                            log.Error(ex.ToString());
+                            System.Windows.MessageBox.Show(string.Format("Error while downloading data.\r\n{0}: {1}", ex.GetType(), ex.Message), "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                         }
 #endif
                     });
