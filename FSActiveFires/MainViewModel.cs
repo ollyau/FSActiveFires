@@ -14,6 +14,8 @@ namespace FSActiveFires {
         public MainViewModel() {
             log = Log.Instance;
             log.WriteLine(string.Format("FS Active Fires by Orion Lyau\r\nVersion: {0}\r\n", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version));
+            log.WriteLine("Test Build 2014-10-28 22:05");
+            log.ShouldSave = true;
             activeFires = new MODISHotspots();
             SelectedDatasetUrl = activeFires.datasets["World"];
 
@@ -33,8 +35,7 @@ namespace FSActiveFires {
 #endif
                             log.Info("InstallCommand");
                             await Task.Run(() => {
-                                string[] allSims = { SimInfo.FsxDirectory, SimInfo.P3dDirectory, SimInfo.P3d2Directory };
-                                var simDirs = allSims.Where(x => !string.IsNullOrEmpty(x));
+                                var simDirs = SimInfo.SimDirectories;
                                 if (simDirs.Count() > 0) {
                                     foreach (var sim in simDirs) {
                                         FireEffect.InstallSimObject(sim);
@@ -49,7 +50,7 @@ namespace FSActiveFires {
                         }
                         catch (Exception ex) {
                             log.Error(ex.ToString());
-                            System.Windows.MessageBox.Show(string.Format("Error while installing SimObject.\r\n{0}: {1}", ex.GetType(), ex.Message), "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                            System.Windows.MessageBox.Show(string.Format("Error while installing SimObject.\r\n{0}", ex.Message), "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                         }
 #endif
                     });
@@ -75,7 +76,7 @@ namespace FSActiveFires {
                         }
                         catch (Exception ex) {
                             log.Error(ex.ToString());
-                            System.Windows.MessageBox.Show(string.Format("Error while downloading data.\r\n{0}: {1}", ex.GetType(), ex.Message), "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                            System.Windows.MessageBox.Show(string.Format("Error while downloading data.\r\n{0}", ex.Message), "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                         }
 #endif
                     });
@@ -89,19 +90,39 @@ namespace FSActiveFires {
             get {
                 if (_connectCommand == null) {
                     _connectCommand = new RelayCommandAsync(async _ => {
-                        log.Info("ConnectCommand");
-                        if (!IsConnected) {
-                            log.Info(string.Format("Minimum detection confidence: {0}%", MinimumConfidence));
-                            await Task.Run(() => {
-                                sc.AddLocations(SimObjectTitle, activeFires.hotspots.Where(x => x.Confidence >= MinimumConfidence));
-                                sc.Connect();
-                            });
+#if !DEBUG
+                        try {
+#endif
+                            log.Info("ConnectCommand");
+                            if (!IsConnected) {
+                                log.Info(string.Format("Minimum detection confidence: {0}%", MinimumConfidence));
+                                await Task.Run(() => {
+                                    SimInfo.LogSimInfo();
+                                    if (!SimInfo.SimRunning) {
+                                        throw new InvalidOperationException("You cannot establish a SimConnect connection when the simulator is closed.");
+                                    }
+                                    if (SimInfo.IncompatibleFSXRunning) {
+                                        throw new NotSupportedException("FS Active Fires is only compatible with Microsoft Flight Simulator X: Acceleration and SP2.");
+                                    }
+                                    sc.AddLocations(SimObjectTitle, activeFires.hotspots.Where(x => x.Confidence >= MinimumConfidence));
+                                    sc.Connect();
+                                });
+                            }
+                            else {
+                                await Task.Run(() => {
+                                    sc.Disconnect();
+                                });
+                            }
+#if !DEBUG
                         }
-                        else {
-                            await Task.Run(() => {
-                                sc.Disconnect();
-                            });
+                        catch (Exception ex) {
+                            log.Error(ex.ToString());
+                            if (ex is InvalidOperationException || ex is NotSupportedException) {
+                                System.Windows.MessageBox.Show(ex.Message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                            }
+                            throw;
                         }
+#endif
                     });
                 }
                 return _connectCommand;
