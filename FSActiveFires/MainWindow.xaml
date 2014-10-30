@@ -78,7 +78,7 @@
                     </StackPanel>
                 </StackPanel>
             </GroupBox>
-            <TextBlock Margin="5,5,5,0" VerticalAlignment="Center">Appreciate my software and feeling charitable?  <Hyperlink Command="{Binding DonateCommand}">Donate via PayPal.</Hyperlink></TextBlock>
+            <TextBlock Margin="5,5,5,0" VerticalAlignment="Center">Appreciate my software and feeling generous?  <Hyperlink Command="{Binding DonateCommand}">Send me a tip!</Hyperlink></TextBlock>
         </StackPanel>
     </Grid>
 </Window>

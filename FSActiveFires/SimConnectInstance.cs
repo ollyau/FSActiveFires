@@ -18,7 +18,7 @@ namespace FSActiveFires {
                                       @"HKEY_CURRENT_USER\Software\Lockheed Martin\Prepar3D v2"
                                   };
             foreach (string sim in simulators) {
-                string value = (string)Microsoft.Win32.Registry.GetValue(sim, strValueName, string.Empty);
+                string value = (string)Microsoft.Win32.Registry.GetValue(sim, strValueName, null);
                 if (!string.IsNullOrEmpty(value)) {
                     return int.Parse(value);
                 }

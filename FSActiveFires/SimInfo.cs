@@ -9,122 +9,114 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace FSActiveFires {
-    class SimInfo {
-        private static string fsxDirectory;
-        private static string espDirectory;
-        private static string p3dDirectory;
-        private static string p3d2Directory;
+    abstract class Simulator {
+        public const string NOT_FOUND = "NOT_FOUND";
 
-        private static string fsxVersion;
-        private static string espVersion;
-        private static string p3dVersion;
-        private static string p3d2Version;
+        protected string _registryKey;
+        protected string _executableName;
 
-        private const string FSX_REG_KEY = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\microsoft games\flight simulator\10.0";
-        private const string ESP_REG_KEY = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft ESP\1.0";
-        private const string P3D_REG_KEY = @"HKEY_LOCAL_MACHINE\SOFTWARE\LockheedMartin\Prepar3D";
-        private const string P3D2_REG_KEY = @"HKEY_LOCAL_MACHINE\SOFTWARE\Lockheed Martin\Prepar3D v2";
+        private string _registryValue;
+        private string _directory;
+        private string _versionInfo;
 
-        private const string NOT_FOUND = "NOT_FOUND";
-
-        private static string GetSimDirectory(string regKey, ref string simDirectory) {
-            simDirectory = (string)Registry.GetValue(regKey, "SetupPath", null);
-
-            if (string.IsNullOrEmpty(simDirectory)) {
-                simDirectory = (string)Registry.GetValue(regKey.Insert("HKEY_LOCAL_MACHINE\\SOFTWARE\\".Length, "Wow6432Node\\"), "SetupPath", null);
-            }
-
-            if (!string.IsNullOrEmpty(simDirectory) && !simDirectory.EndsWith("\\")) {
-                simDirectory = simDirectory.Insert(simDirectory.Length, "\\");
-            }
-
-            if (string.IsNullOrEmpty(simDirectory)) {
-                simDirectory = NOT_FOUND;
-            }
-
-            return simDirectory;
+        public Simulator() {
+            _registryValue = "SetupPath";
         }
 
-        private static string GetSimVersion(string simDirectory, string simExecutable, ref string simVersion) {
-            string simExePath = Path.Combine(simDirectory, simExecutable);
+        private string GetDirectory() {
+            _directory = (string)Registry.GetValue(_registryKey, _registryValue, null);
+
+            if (string.IsNullOrEmpty(_directory)) {
+                _directory = (string)Registry.GetValue(_registryKey.Insert("HKEY_LOCAL_MACHINE\\SOFTWARE\\".Length, "Wow6432Node\\"), _registryValue, null);
+            }
+
+            if (!string.IsNullOrEmpty(_directory) && !_directory.EndsWith("\\")) {
+                _directory = _directory.Insert(_directory.Length, "\\");
+            }
+
+            if (string.IsNullOrEmpty(_directory)) {
+                _directory = NOT_FOUND;
+            }
+
+            return _directory;
+        }
+
+        private string GetVersion() {
+            string simExePath = Path.Combine(Directory, _executableName + ".exe");
             if (File.Exists(simExePath)) {
-                simVersion = FileVersionInfo.GetVersionInfo(simExePath).ProductVersion;
-                return simVersion;
+                _versionInfo = FileVersionInfo.GetVersionInfo(simExePath).ProductVersion;
+                return _versionInfo;
             }
             else {
                 return NOT_FOUND;
             }
         }
 
-        private static string FsxVersion {
-            get { return string.IsNullOrEmpty(fsxVersion) ? GetSimVersion(FsxDirectory, "fsx.exe", ref fsxVersion) : fsxVersion; } 
+        public string VersionInfo {
+            get { return string.IsNullOrEmpty(_versionInfo) ? GetVersion() : _versionInfo; }
         }
 
-        private static string EspVersion {
-            get { return string.IsNullOrEmpty(espVersion) ? GetSimVersion(EspDirectory, "esp.exe", ref espVersion) : espVersion; }
+        public string Directory {
+            get { return string.IsNullOrEmpty(_directory) ? GetDirectory() : _directory; }
         }
 
-        private static string P3dVersion {
-            get { return string.IsNullOrEmpty(p3dVersion) ? GetSimVersion(p3dDirectory, "Prepar3D.exe", ref p3dVersion) : p3dVersion; }
+        public bool Running {
+            get { return Directory.Equals(NOT_FOUND) ? false : Process.GetProcessesByName(_executableName).Any(x => x.MainModule.FileName == Path.Combine(Directory, _executableName + ".exe")); }
+        }
+    }
+
+    class FlightSimulatorX : Simulator { public FlightSimulatorX() { _registryKey = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\microsoft games\flight simulator\10.0"; _executableName = "fsx"; } }
+    class EnterpriseSimulationPlatform : Simulator { public EnterpriseSimulationPlatform() { _registryKey = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft ESP\1.0"; _executableName = "esp"; } }
+    class Prepar3D : Simulator { public Prepar3D() { _registryKey = @"HKEY_LOCAL_MACHINE\SOFTWARE\LockheedMartin\Prepar3D"; _executableName = "Prepar3D"; } }
+    class Prepar3D2 : Simulator { public Prepar3D2() { _registryKey = @"HKEY_LOCAL_MACHINE\SOFTWARE\Lockheed Martin\Prepar3D v2"; _executableName = "Prepar3D"; } }
+
+    class SimInfo {
+        private static readonly Lazy<SimInfo> InfoInstance = new Lazy<SimInfo>(() => new SimInfo());
+        public static SimInfo Instance { get { return InfoInstance.Value; } }
+
+        private List<Simulator> simulators;
+        private bool? _fsxCompatibility;
+
+        private SimInfo() {
+            simulators = new List<Simulator>();
+            simulators.Add(new FlightSimulatorX());
+            simulators.Add(new EnterpriseSimulationPlatform());
+            simulators.Add(new Prepar3D());
+            simulators.Add(new Prepar3D2());
         }
 
-        private static string P3d2Version {
-            get { return string.IsNullOrEmpty(p3d2Version) ? GetSimVersion(p3d2Directory, "Prepar3D.exe", ref p3d2Version) : p3d2Version; }
+        private bool GetFsxCompatibility() {
+            _fsxCompatibility = !(!simulators[0].VersionInfo.Equals("10.0.61637.0 (FSX-Xpack.20070926-1421)") && !simulators[0].VersionInfo.Equals("10.0.61472.0 (fsx-sp2.20071210-2023)"));
+            return (bool)_fsxCompatibility;
         }
 
-        private static string FsxDirectory {
-            get { return string.IsNullOrEmpty(fsxDirectory) ? GetSimDirectory(FSX_REG_KEY, ref fsxDirectory) : fsxDirectory; }
+        private bool FSXCompatibility {
+            get { return _fsxCompatibility == null ? GetFsxCompatibility() : (bool)_fsxCompatibility; }
         }
 
-        private static string EspDirectory {
-            get { return string.IsNullOrEmpty(espDirectory) ? GetSimDirectory(ESP_REG_KEY, ref espDirectory) : espDirectory; }
+        public bool IncompatibleFSXRunning {
+            get { return !FSXCompatibility && simulators[0].Running; }
         }
 
-        private static string P3dDirectory {
-            get { return string.IsNullOrEmpty(p3dDirectory) ? GetSimDirectory(P3D_REG_KEY, ref p3dDirectory) : p3dDirectory; }
-        }
-
-        private static string P3d2Directory {
-            get { return string.IsNullOrEmpty(p3d2Directory) ? GetSimDirectory(P3D2_REG_KEY, ref p3d2Directory) : p3d2Directory; }
-        }
-
-        private static bool FsxRunning {
-            get { return FsxDirectory.Equals(NOT_FOUND) ? false : Process.GetProcessesByName("fsx").Any(x => x.MainModule.FileName == Path.Combine(FsxDirectory, "fsx.exe")); } 
-        }
-
-        private static bool EspRunning {
-            get { return EspDirectory.Equals(NOT_FOUND) ? false : Process.GetProcessesByName("esp").Any(x => x.MainModule.FileName == Path.Combine(EspDirectory, "esp.exe")); }
-        }
-
-        private static bool P3dRunning {
-            get { return P3dDirectory.Equals(NOT_FOUND) ? false : Process.GetProcessesByName("Prepar3D").Any(x => x.MainModule.FileName == Path.Combine(P3dDirectory, "Prepar3D.exe")); }
-        }
-
-        private static bool P3d2Running {
-            get { return P3d2Directory.Equals(NOT_FOUND) ? false : Process.GetProcessesByName("Prepar3D").Any(x => x.MainModule.FileName == Path.Combine(P3d2Directory, "Prepar3D.exe")); }
-        }
-
-        private static bool FSXCompatibility {
+        public IEnumerable<string> SimDirectories {
             get {
-                return !((!SimInfo.FsxVersion.Equals("10.0.61637.0 (FSX-Xpack.20070926-1421)") && !SimInfo.FsxVersion.Equals("10.0.61472.0 (fsx-sp2.20071210-2023)")));
+                List<string> simDirs = new List<string>();
+                foreach (Simulator s in simulators) {
+                    simDirs.Add(s.Directory);
+                }
+                return simDirs.Where(x => !string.IsNullOrEmpty(x) && !x.Equals(Simulator.NOT_FOUND));
             }
         }
 
-        public static bool IncompatibleFSXRunning {
-            get { return SimInfo.FsxRunning && !SimInfo.FSXCompatibility; }
-        }
-
-        public static IEnumerable<string> SimDirectories {
-            get {
-                string[] allSims = { SimInfo.FsxDirectory, SimInfo.EspDirectory, SimInfo.P3dDirectory, SimInfo.P3d2Directory };
-                return allSims.Where(x => !string.IsNullOrEmpty(x) && !x.Equals(NOT_FOUND));
-            }
-        }
-
-        public static void LogSimInfo() {
+        public void LogSimInfo() {
             Log log = Log.Instance;
-            const string data = "Simulator information:\r\nFSX Directory: {0}\r\nESP Directory: {1}\r\nP3D Directory: {2}\r\nP3D2 Directory: {3}\r\nFSX Version: {4}\r\nESP Version: {5}\r\nP3D Version: {6}\r\nP3D2 Version: {7}\r\nFSX Running: {8}\r\nESP Running: {9}\r\nP3D Running: {10}\r\nP3D2 Running: {11}";
-            log.Info(string.Format(data, FsxDirectory, EspDirectory, P3dDirectory, P3d2Directory, FsxVersion, EspVersion, P3dVersion, P3d2Version, FsxRunning, EspRunning, P3dRunning, P3d2Running));
+            foreach (Simulator s in simulators) {
+                Type type = s.GetType();
+                System.Reflection.PropertyInfo[] properties = type.GetProperties();
+                foreach (System.Reflection.PropertyInfo property in properties) {
+                    log.Info(string.Format("{0}.{1}: {2}", type.ToString(), property.Name, property.GetValue(s, null)));
+                }
+            }
             log.Info(string.Format("Compatible FSX version (Acceleration or SP2): {0}", FSXCompatibility));
             log.Info(string.Format("Incompatible version of FSX running: {0}", IncompatibleFSXRunning));
             log.Info(string.Format("Directories of currently installed simulators:\r\n{0}", string.Join("\r\n", SimDirectories.ToArray())));

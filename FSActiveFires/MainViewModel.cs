@@ -14,8 +14,7 @@ namespace FSActiveFires {
         public MainViewModel() {
             log = Log.Instance;
             log.WriteLine(string.Format("FS Active Fires by Orion Lyau\r\nVersion: {0}\r\n", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version));
-            log.WriteLine("Test Build 2014-10-29 18:35\r\n");
-            log.ShouldSave = true;
+
             activeFires = new MODISHotspots();
             SelectedDatasetUrl = activeFires.datasets["World"];
 
@@ -35,7 +34,7 @@ namespace FSActiveFires {
 #endif
                             log.Info("InstallCommand");
                             await Task.Run(() => {
-                                var simDirs = SimInfo.SimDirectories;
+                                var simDirs = SimInfo.Instance.SimDirectories;
                                 if (simDirs.Count() > 0) {
                                     foreach (var sim in simDirs) {
                                         FireEffect.InstallSimObject(sim);
@@ -94,7 +93,7 @@ namespace FSActiveFires {
                         if (!IsConnected) {
                             log.Info(string.Format("Minimum detection confidence: {0}%", MinimumConfidence));
                             await Task.Run(() => {
-                                if (SimInfo.IncompatibleFSXRunning) {
+                                if (SimInfo.Instance.IncompatibleFSXRunning) {
                                     throw new NotSupportedException("FS Active Fires is only compatible with Microsoft Flight Simulator X: Acceleration and SP2.");
                                 }
                                 sc.AddLocations(SimObjectTitle, activeFires.hotspots.Where(x => x.Confidence >= MinimumConfidence));
@@ -146,7 +145,7 @@ namespace FSActiveFires {
                 if (_donateCommand == null) {
                     _donateCommand = new RelayCommand(param => {
                         log.Info("DonateCommand");
-                        System.Diagnostics.Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=orion%2epublic%40live%2ecom&lc=US&item_name=FS%20Active%20Fires%20Donation&currency_code=USD");
+                        System.Diagnostics.Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=orion%2epublic%40live%2ecom&lc=US&item_name=FS%20Active%20Fires%20Tip&button_subtype=services&no_note=0&currency_code=USD");
                     });
                 }
                 return _donateCommand;
