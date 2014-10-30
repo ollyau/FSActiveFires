@@ -14,7 +14,7 @@ namespace FSActiveFires {
         public MainViewModel() {
             log = Log.Instance;
             log.WriteLine(string.Format("FS Active Fires by Orion Lyau\r\nVersion: {0}\r\n", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version));
-            log.WriteLine("Test Build 2014-10-28 22:05");
+            log.WriteLine("Test Build 2014-10-29 18:35\r\n");
             log.ShouldSave = true;
             activeFires = new MODISHotspots();
             SelectedDatasetUrl = activeFires.datasets["World"];
@@ -90,39 +90,22 @@ namespace FSActiveFires {
             get {
                 if (_connectCommand == null) {
                     _connectCommand = new RelayCommandAsync(async _ => {
-#if !DEBUG
-                        try {
-#endif
-                            log.Info("ConnectCommand");
-                            if (!IsConnected) {
-                                log.Info(string.Format("Minimum detection confidence: {0}%", MinimumConfidence));
-                                await Task.Run(() => {
-                                    SimInfo.LogSimInfo();
-                                    if (!SimInfo.SimRunning) {
-                                        throw new InvalidOperationException("You cannot establish a SimConnect connection when the simulator is closed.");
-                                    }
-                                    if (SimInfo.IncompatibleFSXRunning) {
-                                        throw new NotSupportedException("FS Active Fires is only compatible with Microsoft Flight Simulator X: Acceleration and SP2.");
-                                    }
-                                    sc.AddLocations(SimObjectTitle, activeFires.hotspots.Where(x => x.Confidence >= MinimumConfidence));
-                                    sc.Connect();
-                                });
-                            }
-                            else {
-                                await Task.Run(() => {
-                                    sc.Disconnect();
-                                });
-                            }
-#if !DEBUG
+                        log.Info("ConnectCommand");
+                        if (!IsConnected) {
+                            log.Info(string.Format("Minimum detection confidence: {0}%", MinimumConfidence));
+                            await Task.Run(() => {
+                                if (SimInfo.IncompatibleFSXRunning) {
+                                    throw new NotSupportedException("FS Active Fires is only compatible with Microsoft Flight Simulator X: Acceleration and SP2.");
+                                }
+                                sc.AddLocations(SimObjectTitle, activeFires.hotspots.Where(x => x.Confidence >= MinimumConfidence));
+                                sc.Connect();
+                            });
                         }
-                        catch (Exception ex) {
-                            log.Error(ex.ToString());
-                            if (ex is InvalidOperationException || ex is NotSupportedException) {
-                                System.Windows.MessageBox.Show(ex.Message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-                            }
-                            throw;
+                        else {
+                            await Task.Run(() => {
+                                sc.Disconnect();
+                            });
                         }
-#endif
                     });
                 }
                 return _connectCommand;

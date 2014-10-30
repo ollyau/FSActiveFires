@@ -5,6 +5,28 @@ using System.Linq;
 using System.Text;
 
 namespace FSActiveFires {
+    class SimConnectHelpers {
+        public static bool IsLocalRunning {
+            get { return LookupDefaultPortNumber("SimConnect_Port_IPv4") != 0 || LookupDefaultPortNumber("SimConnect_Port_IPv6") != 0; }
+        }
+
+        public static int LookupDefaultPortNumber(string strValueName) {
+            string[] simulators = {
+                                      @"HKEY_CURRENT_USER\Software\Microsoft\Microsoft Games\Flight Simulator",
+                                      @"HKEY_CURRENT_USER\Software\Microsoft\Microsoft ESP",
+                                      @"HKEY_CURRENT_USER\Software\LockheedMartin\Prepar3D",
+                                      @"HKEY_CURRENT_USER\Software\Lockheed Martin\Prepar3D v2"
+                                  };
+            foreach (string sim in simulators) {
+                string value = (string)Microsoft.Win32.Registry.GetValue(sim, strValueName, string.Empty);
+                if (!string.IsNullOrEmpty(value)) {
+                    return int.Parse(value);
+                }
+            }
+            return 0;
+        }
+    }
+
     class SimConnectInstance : NotifyPropertyChanged {
         private SimConnect sc = null;
         private HashSet<SimObject> AllObjects;
@@ -39,12 +61,27 @@ namespace FSActiveFires {
         }
 
         public void Connect() {
-            try {
-                log.Info("Opening SimConnect connection.");
-                sc.Open(appName);
+            if (SimConnectHelpers.IsLocalRunning) {
+                try {
+                    log.Info("Opening SimConnect connection.");
+                    sc.Open(appName);
+                }
+                catch (SimConnect.SimConnectException ex) {
+                    log.Warning(string.Format("Local connection failed.\r\n{0}", ex.ToString()));
+                    try {
+                        bool ipv6support = System.Net.Sockets.Socket.OSSupportsIPv6;
+                        log.Info("Opening SimConnect connection " + (ipv6support ? "(IPv6)." : "(IPv4)."));
+                        int scPort = ipv6support ? SimConnectHelpers.LookupDefaultPortNumber("SimConnect_Port_IPv6") : SimConnectHelpers.LookupDefaultPortNumber("SimConnect_Port_IPv4");
+                        if (scPort == 0) { throw new SimConnect.SimConnectException("Invalid port."); }
+                        sc.Open(appName, null, scPort, ipv6support);
+                    }
+                    catch (SimConnect.SimConnectException innerEx) {
+                        log.Error(string.Format("Local connection failed.\r\n{0}", innerEx.ToString()));
+                    }
+                }
             }
-            catch (SimConnect.SimConnectException ex) {
-                log.Warning(string.Format("Local connection failed.\r\n{0}", ex.ToString()));
+            else {
+                log.Warning("Flight Simulator must be running in order to connect to SimConnect.");
             }
         }
 
@@ -58,10 +95,9 @@ namespace FSActiveFires {
         }
 
         void sc_OnRecvOpen(SimConnect sender, SIMCONNECT_RECV_OPEN data) {
-            log.Info("Connected to " + data.szApplicationName +
-                "\r\n    Simulator Version:\t" + data.dwApplicationVersionMajor + "." + data.dwApplicationVersionMinor + "." + data.dwApplicationBuildMajor + "." + data.dwApplicationBuildMinor +
-                "\r\n    SimConnect Version:\t" + data.dwSimConnectVersionMajor + "." + data.dwSimConnectVersionMinor + "." + data.dwSimConnectBuildMajor + "." + data.dwSimConnectBuildMinor +
-                "\r\n");
+            log.Info(string.Format("Connected to {0}\r\n    Simulator Version:\t{1}.{2}.{3}.{4}\r\n    SimConnect Version:\t{5}.{6}.{7}.{8}",
+                data.szApplicationName, data.dwApplicationVersionMajor, data.dwApplicationVersionMinor, data.dwApplicationBuildMajor, data.dwApplicationBuildMinor,
+                data.dwSimConnectVersionMajor, data.dwSimConnectVersionMinor, data.dwSimConnectBuildMajor, data.dwSimConnectBuildMinor));
 
             IsConnected = true;
 

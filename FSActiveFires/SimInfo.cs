@@ -121,20 +121,13 @@ namespace FSActiveFires {
             }
         }
 
-        public static bool SimRunning {
-            get {
-                return FsxRunning || EspRunning || P3dRunning || P3d2Running;
-            }
-        }
-
         public static void LogSimInfo() {
             Log log = Log.Instance;
             const string data = "Simulator information:\r\nFSX Directory: {0}\r\nESP Directory: {1}\r\nP3D Directory: {2}\r\nP3D2 Directory: {3}\r\nFSX Version: {4}\r\nESP Version: {5}\r\nP3D Version: {6}\r\nP3D2 Version: {7}\r\nFSX Running: {8}\r\nESP Running: {9}\r\nP3D Running: {10}\r\nP3D2 Running: {11}";
             log.Info(string.Format(data, FsxDirectory, EspDirectory, P3dDirectory, P3d2Directory, FsxVersion, EspVersion, P3dVersion, P3d2Version, FsxRunning, EspRunning, P3dRunning, P3d2Running));
-            log.Info(string.Format("Compatible FSX Version (Acceleration or SP2): {0}", FSXCompatibility));
+            log.Info(string.Format("Compatible FSX version (Acceleration or SP2): {0}", FSXCompatibility));
             log.Info(string.Format("Incompatible version of FSX running: {0}", IncompatibleFSXRunning));
             log.Info(string.Format("Directories of currently installed simulators:\r\n{0}", string.Join("\r\n", SimDirectories.ToArray())));
-            log.Info(string.Format("Any simulator running: {0}", SimRunning));
             log.ShouldSave = true;
         }
     }
