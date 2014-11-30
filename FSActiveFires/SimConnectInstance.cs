@@ -101,7 +101,9 @@ namespace FSActiveFires {
 
             IsConnected = true;
 
+#if DEBUG
             sc.SubscribeToSystemEvent(Events.AddObject, "ObjectAdded");
+#endif
             sc.SubscribeToSystemEvent(Events.RemoveObject, "ObjectRemoved");
 
             sc.Text(SIMCONNECT_TEXT_TYPE.PRINT_WHITE, 5.0f, Requests.DisplayText, appName + " is connected to " + Encoding.UTF8.GetString(Encoding.Default.GetBytes(data.szApplicationName)));

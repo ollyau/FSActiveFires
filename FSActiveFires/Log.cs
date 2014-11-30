@@ -9,7 +9,7 @@ namespace FSActiveFires {
 
         public bool ShouldSave = false;
 
-        private static string AssemblyLoadDirectory {
+        private string AssemblyLoadDirectory {
             get { return Path.GetDirectoryName(new System.Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath); }
         }
 
