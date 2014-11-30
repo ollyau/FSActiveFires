@@ -1,11 +1,11 @@
 FSActiveFires
 =============
 
-![Screenshot of FS Active Fires](http://i.imgur.com/kItmWOx.png)
+![Screenshot of FS Active Fires](http://i.imgur.com/AQDqF2L.png)
 
 A utility that downloads active fire data from the NASA website to create fires in Microsoft Flight Simulator.
 
-![Regions](http://i.imgur.com/adALBtK.jpg)
+![Regions](https://earthdata.nasa.gov/sites/default/files/styles/large/public/null/Regions_500px.jpg)
 
 Region image from the [NASA website](https://earthdata.nasa.gov/data/near-real-time-data/firms/active-fire-data).
 
