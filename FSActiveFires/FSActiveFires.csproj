@@ -71,6 +71,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ArgumentParser.cs" />
     <Compile Include="Coordinate.cs" />
     <Compile Include="FireEffect.cs" />
     <Compile Include="Hotspot.cs" />

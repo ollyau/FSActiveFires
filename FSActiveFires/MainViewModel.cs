@@ -20,6 +20,55 @@ namespace FSActiveFires {
 
             sc = new SimConnectInstance();
             sc.PropertyChanged += (sender, args) => base.OnPropertyChanged(args.PropertyName);
+
+            Task.Run(async () => {
+                CanExecute = false;
+                await CheckArguments();
+                CanExecute = true;
+            });
+        }
+
+        private async Task CheckArguments() {
+            await Task.Run(() => {
+                var parser = new ArgumentParser();
+                parser.Check("log", () => { Log.Instance.ShouldSave = true; });
+
+                parser.Check("title", (arg) => {
+                    SimObjectTitle = arg;
+                    log.Info(string.Format("Title argument: {0}", arg));
+                });
+
+                parser.Check("confidence", (arg) => {
+                    int val = 0;
+                    int.TryParse(arg, out val);
+                    if (val > 100) { MinimumConfidence = 100; }
+                    else if (val < 0) { MinimumConfidence = 0; }
+                    else { MinimumConfidence = val; }
+                    log.Info(string.Format("Confidence argument: {0} parsed: {1}", arg, MinimumConfidence));
+                });
+
+                parser.Check("download", (arg) => {
+                    log.Info(string.Format("Download argument: {0}", arg));
+                    if (Datasets.ContainsKey(arg)) {
+                        SelectedDatasetUrl = Datasets[arg];
+                    }
+                    else {
+                        log.Warning(string.Format("Unknown dataset: \"{0}\".  Defaulting to World.", arg));
+                    }
+                    activeFires.LoadData(SelectedDatasetUrl);
+                    OnPropertyChanged("TotalFiresCount");
+                });
+
+                parser.Check("connect", () => {
+                    log.Info(string.Format("Connect argument"));
+                    log.Info(string.Format("Minimum detection confidence: {0}%", MinimumConfidence));
+                    if (SimInfo.Instance.IncompatibleFSXRunning) {
+                        throw new NotSupportedException("FS Active Fires is only compatible with Microsoft Flight Simulator X: Acceleration and SP2.");
+                    }
+                    sc.AddLocations(SimObjectTitle, activeFires.hotspots.Where(x => x.Confidence >= MinimumConfidence));
+                    sc.Connect();
+                });
+            });
         }
 
         #region Command Bindings
@@ -202,6 +251,12 @@ namespace FSActiveFires {
         public int MinimumConfidence {
             get { return _minimumConfidence; }
             set { SetProperty(ref _minimumConfidence, value); }
+        }
+
+        private bool _canExecute = true;
+        public bool CanExecute {
+            get { return _canExecute; }
+            set { SetProperty(ref _canExecute, value); }
         }
 
         #endregion

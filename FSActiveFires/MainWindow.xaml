@@ -59,7 +59,7 @@
                         <TextBlock Padding="3" Text="Total fires downloaded:" />
                         <TextBlock Padding="3" Text="{Binding TotalFiresCount}" />
                     </StackPanel>
-                    <Button Grid.Row="3" Grid.Column="1" Padding="3" Margin="5" Content="Download Data" VerticalAlignment="Center" HorizontalAlignment="Right" Command="{Binding DownloadCommand}" />
+                    <Button Grid.Row="3" Grid.Column="1" Padding="3" Margin="5" Content="Download Data" VerticalAlignment="Center" HorizontalAlignment="Right" Command="{Binding DownloadCommand}" IsEnabled="{Binding CanExecute}"/>
                 </Grid>
             </GroupBox>
             <GroupBox Header="{Binding IsConnected, Converter={StaticResource ConnectedTitleConverter}}">
@@ -69,8 +69,8 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Button x:Name="Button_Connect"        Grid.Column="0" Padding="3" Margin="5" Content="{Binding IsConnected, Converter={StaticResource ConnectedButtonConverter}}" Command="{Binding ConnectCommand}"/>
-                        <Button x:Name="Button_Test"           Grid.Column="1" Padding="3" Margin="5" Content="Move User to Random Fire"  Command="{Binding RelocateUserCommand}" IsEnabled="{Binding IsConnected}"/>
+                        <Button Grid.Column="0" Padding="3" Margin="5" Content="{Binding IsConnected, Converter={StaticResource ConnectedButtonConverter}}" Command="{Binding ConnectCommand}" IsEnabled="{Binding CanExecute}"/>
+                        <Button Grid.Column="1" Padding="3" Margin="5" Content="Move User to Random Fire"  Command="{Binding RelocateUserCommand}" IsEnabled="{Binding IsConnected}"/>
                     </Grid>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Margin="5,5,2,5" Text="Fires in simulation:" />

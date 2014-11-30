@@ -12,13 +12,6 @@ namespace FSActiveFires {
 #if !DEBUG
             try {
 #endif
-                var args = Environment.GetCommandLineArgs();
-                if (args.Length > 1) {
-                    string[] logParams = { "log", "-log", "/log", "l", "-l", "/l" };
-                    if (logParams.Contains(args[1], StringComparer.InvariantCultureIgnoreCase)) {
-                        Log.Instance.ShouldSave = true;
-                    }
-                }
                 App.Main();
 #if !DEBUG
             }
