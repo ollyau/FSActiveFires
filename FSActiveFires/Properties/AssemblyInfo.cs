@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("FSActiveFires")]
-[assembly: AssemblyCopyright("Copyright © Orion Lyau 2014")]
+[assembly: AssemblyCopyright("Copyright © Orion Lyau 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
