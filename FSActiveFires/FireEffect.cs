@@ -45,7 +45,7 @@ namespace FSActiveFires {
                 simCfg.WriteKeyValue("fltsim.0", "model", "");
                 simCfg.WriteKeyValue("fltsim.0", "texture", "");
                 simCfg.WriteKeyValue("fltsim.0", "ui_type", "SceneryObject");
-                simCfg.WriteKeyValue("General", "category", "SimpleObject");
+                simCfg.WriteKeyValue("General", "category", "Viewer");
                 simCfg.WriteKeyValue("contact_points", "destroy_on_impact", "0");
             }
 
