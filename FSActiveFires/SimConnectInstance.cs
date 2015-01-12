@@ -15,12 +15,14 @@ namespace FSActiveFires {
                                       @"HKEY_CURRENT_USER\Software\Microsoft\Microsoft Games\Flight Simulator",
                                       @"HKEY_CURRENT_USER\Software\Microsoft\Microsoft ESP",
                                       @"HKEY_CURRENT_USER\Software\LockheedMartin\Prepar3D",
-                                      @"HKEY_CURRENT_USER\Software\Lockheed Martin\Prepar3D v2"
+                                      @"HKEY_CURRENT_USER\Software\Lockheed Martin\Prepar3D v2",
+                                      @"HKEY_CURRENT_USER\Software\Microsoft\Microsoft Games\Flight Simulator - Steam Edition"
                                   };
             foreach (string sim in simulators) {
                 string value = (string)Microsoft.Win32.Registry.GetValue(sim, strValueName, null);
                 if (!string.IsNullOrEmpty(value)) {
-                    return int.Parse(value);
+                    int port = int.Parse(value);
+                    if (port != 0) { return port; }
                 }
             }
             return 0;

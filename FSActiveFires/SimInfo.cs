@@ -13,9 +13,9 @@ namespace FSActiveFires {
         public const string NOT_FOUND = "NOT_FOUND";
 
         protected string _registryKey;
+        protected string _registryValue;
         protected string _executableName;
 
-        private string _registryValue;
         private string _directory;
         private string _versionInfo;
 
@@ -61,7 +61,15 @@ namespace FSActiveFires {
         }
 
         public bool Running {
-            get { return Directory.Equals(NOT_FOUND) ? false : Process.GetProcessesByName(_executableName).Any(x => x.MainModule.FileName == Path.Combine(Directory, _executableName + ".exe")); }
+            get {
+                try {
+                    return Directory.Equals(NOT_FOUND) ? false : Process.GetProcessesByName(_executableName).Any(x => x.MainModule.FileName == Path.Combine(Directory, _executableName + ".exe"));
+                }
+                catch (System.ComponentModel.Win32Exception) {
+                    // unable to determine
+                    return false;
+                }
+            }
         }
     }
 
@@ -69,6 +77,7 @@ namespace FSActiveFires {
     class EnterpriseSimulationPlatform : Simulator { public EnterpriseSimulationPlatform() { _registryKey = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft ESP\1.0"; _executableName = "esp"; } }
     class Prepar3D : Simulator { public Prepar3D() { _registryKey = @"HKEY_LOCAL_MACHINE\SOFTWARE\LockheedMartin\Prepar3D"; _executableName = "Prepar3D"; } }
     class Prepar3D2 : Simulator { public Prepar3D2() { _registryKey = @"HKEY_LOCAL_MACHINE\SOFTWARE\Lockheed Martin\Prepar3D v2"; _executableName = "Prepar3D"; } }
+    class FlightSimulatorXSteamEdition : Simulator { public FlightSimulatorXSteamEdition() { _registryKey = @"HKEY_LOCAL_MACHINE\SOFTWARE\DovetailGames\FSX"; _executableName = "fsx"; _registryValue = "install_path"; } }
 
     class SimInfo {
         private static readonly Lazy<SimInfo> InfoInstance = new Lazy<SimInfo>(() => new SimInfo());
@@ -83,6 +92,7 @@ namespace FSActiveFires {
             simulators.Add(new EnterpriseSimulationPlatform());
             simulators.Add(new Prepar3D());
             simulators.Add(new Prepar3D2());
+            simulators.Add(new FlightSimulatorXSteamEdition());
         }
 
         private bool GetFsxCompatibility() {

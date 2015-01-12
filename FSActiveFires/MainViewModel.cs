@@ -13,7 +13,6 @@ namespace FSActiveFires {
 
         public MainViewModel() {
             log = Log.Instance;
-            log.WriteLine(string.Format("FS Active Fires by Orion Lyau\r\nVersion: {0}\r\n", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version));
 
             activeFires = new MODISHotspots();
             SelectedDatasetUrl = activeFires.datasets["World"];

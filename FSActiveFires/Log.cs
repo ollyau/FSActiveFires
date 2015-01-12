@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Text;
 
 namespace FSActiveFires {
@@ -13,11 +14,26 @@ namespace FSActiveFires {
             get { return Path.GetDirectoryName(new System.Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath); }
         }
 
+        private DateTime GetLinkerTimeStamp() {
+            const int headerOffset = 60;
+            const int timeStampOffset = 8;
+            byte[] data = new byte[2048];
+            using (var s = new FileStream(Assembly.GetExecutingAssembly().Location, FileMode.Open, FileAccess.Read)) {
+                s.Read(data, 0, 2048);
+            }
+            int dataOffset = BitConverter.ToInt32(data, headerOffset);
+            uint unixTime = BitConverter.ToUInt32(data, dataOffset + timeStampOffset);
+            return new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(unixTime);
+        }
+
         private StringBuilder logData;
 
         private Log() {
             logData = new StringBuilder();
-            logData.AppendLine(string.Format("Logging enabled at {0}\r\n", DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fffzzz")));
+            logData.AppendLine(string.Format("Program built at {0} (version {1})\r\nLogging enabled at {2}\r\n",
+                GetLinkerTimeStamp().ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                Assembly.GetExecutingAssembly().GetName().Version,
+                DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fffzzz")));
         }
 
         public void WriteLine(string s) {
