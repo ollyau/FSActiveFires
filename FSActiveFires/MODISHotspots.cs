@@ -52,10 +52,11 @@ namespace FSActiveFires {
 
         public void LoadData(string datasetFormatString) {
             try {
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 LoadShapefileHotspots(DownloadShapefileData(datasetFormatString));
             }
-            catch (Exception ex) {
-                log.Warning(string.Format("Unable to download or load SHP; attempting to use CSV.\r\nType: {0}\r\nMessage: {1}\r\nStack trace:\r\n{2}", ex.GetType(), ex.Message, ex.StackTrace));
+            catch (System.Data.OleDb.OleDbException ex) {
+                log.Warning(string.Format("Unable to parse shapefile; attempting to use CSV.\r\n{0}", ex.ToString()));
                 LoadCsvHotspots(DownloadCsvData(datasetFormatString));
             }
         }
