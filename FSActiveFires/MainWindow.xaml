@@ -8,8 +8,8 @@
         <local:MainViewModel />
     </Window.DataContext>
     <Window.Resources>
-        <local:ConnectedTitleConverter x:Key="ConnectedTitleConverter"/>
-        <local:ConnectedButtonConverter x:Key="ConnectedButtonConverter"/>
+        <local:BooleanToStringConverter x:Key="ConnectedTitleConverter" True="SimConnect: Connected" False="SimConnect: Disconnected"/>
+        <local:BooleanToStringConverter x:Key="ConnectedButtonConverter" True="Disconnect" False="Connect"/>
         <local:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
     </Window.Resources>
     <i:Interaction.Triggers>
@@ -21,7 +21,7 @@
         <StackPanel>
             <GroupBox Header="Information" Padding="3">
                 <TextBlock TextWrapping="Wrap">
-                    <Run Text="This program uses active fire data from the NASA website to create fires in Flight Simulator.  More information on the data is available from the"/>
+                    <Run Text="This program uses active fire data from the NASA FIRMS website to create fires in Flight Simulator.  To learn more about the data, visit the"/>
                     <Hyperlink Command="{Binding NASACommand}"><Run Text="NASA FIRMS website"/></Hyperlink>
                     <Run Text="."/>
                 </TextBlock>
