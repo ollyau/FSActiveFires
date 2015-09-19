@@ -1,13 +1,15 @@
 FSActiveFires
 =============
 
-![Screenshot of FS Active Fires](http://i.imgur.com/AQDqF2L.png)
+![Screenshot of fires in the simulator](http://i.imgur.com/y4uBXTG.jpg)
 
-A utility that downloads active fire data from the NASA website to create fires in Microsoft Flight Simulator.
+![Screenshot of FS Active Fires](https://i.imgur.com/WELvaJL.png)
 
-![Regions](https://earthdata.nasa.gov/sites/default/files/styles/large/public/null/Regions_500px.jpg)
+A utility that downloads MODIS active fire data from the [NASA FIRMS website](https://earthdata.nasa.gov/firms) to create fires in Microsoft Flight Simulator.
 
-Region image from the [NASA website](https://earthdata.nasa.gov/data/near-real-time-data/firms/active-fire-data).
+![Regions](https://earthdata.nasa.gov/media/shape-file-and-text-file-regions.jpg)
+
+Region image from the [NASA EOSDIS website](https://earthdata.nasa.gov/data/near-real-time-data/firms/active-fire-data).
 
 Frequently Asked Questions
 ---
@@ -70,4 +72,4 @@ Credits & Acknowledgements
 
 We acknowledge the use of FIRMS data and imagery from the Land Atmosphere Near-real time Capability for EOS (LANCE) system operated by the NASA/GSFC/Earth Science Data and Information System (ESDIS) with funding provided by NASA/HQ.
 
-NASA FIRMS, 2014. MODIS Hotspot / Active Fire Detections. Data set. Available on-line [https://earthdata.nasa.gov/firms].
+NASA FIRMS NRT MODIS Near real-time Hotspot / Active Fire Detections [MCD14DL](https://earthdata.nasa.gov/earth-observation-data/near-real-time/firms/mcd14dl) data set. Available on-line [https://earthdata.nasa.gov/firms].
