@@ -9,18 +9,26 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace FSActiveFires {
-    abstract class Simulator {
-        public const string NOT_FOUND = "NOT_FOUND";
-
-        protected string _registryKey;
-        protected string _registryValue;
-        protected string _executableName;
+    class Simulator {
+        readonly string _registryKey;
+        readonly string _registryValue;
+        readonly string _executableName;
 
         private string _directory;
-        private string _versionInfo;
+        private FileVersionInfo _versionInfo;
 
-        public Simulator() {
-            _registryValue = "SetupPath";
+        public Simulator(string executableName, string registryKey, string registryValue = "SetupPath") {
+            _executableName = executableName;
+            _registryKey = registryKey;
+            _registryValue = registryValue;
+        }
+
+        public string Directory {
+            get { return string.IsNullOrEmpty(_directory) ? GetDirectory() : _directory; }
+        }
+
+        public FileVersionInfo VersionInfo {
+            get { return _versionInfo == null ? GetVersion() : _versionInfo; }
         }
 
         private string GetDirectory() {
@@ -34,36 +42,25 @@ namespace FSActiveFires {
                 _directory = _directory.Insert(_directory.Length, "\\");
             }
 
-            if (string.IsNullOrEmpty(_directory)) {
-                _directory = NOT_FOUND;
-            }
-
             return _directory;
         }
 
-        private string GetVersion() {
-            string simExePath = Path.Combine(Directory, _executableName + ".exe");
-            if (File.Exists(simExePath)) {
-                _versionInfo = FileVersionInfo.GetVersionInfo(simExePath).ProductVersion;
-                return _versionInfo;
+        private FileVersionInfo GetVersion() {
+            var dir = Directory;
+            if (!string.IsNullOrEmpty(dir)) {
+                string simExePath = Path.Combine(dir, _executableName + ".exe");
+                if (File.Exists(simExePath)) {
+                    _versionInfo = FileVersionInfo.GetVersionInfo(simExePath);
+                    return _versionInfo;
+                }
             }
-            else {
-                return NOT_FOUND;
-            }
-        }
-
-        public string VersionInfo {
-            get { return string.IsNullOrEmpty(_versionInfo) ? GetVersion() : _versionInfo; }
-        }
-
-        public string Directory {
-            get { return string.IsNullOrEmpty(_directory) ? GetDirectory() : _directory; }
+            return null;
         }
 
         public bool Running {
             get {
                 try {
-                    return Directory.Equals(NOT_FOUND) ? false : Process.GetProcessesByName(_executableName).Any(x => x.MainModule.FileName == Path.Combine(Directory, _executableName + ".exe"));
+                    return string.IsNullOrEmpty(Directory) ? false : Process.GetProcessesByName(_executableName).Any(x => x.MainModule.FileName == Path.Combine(Directory, _executableName + ".exe"));
                 }
                 catch (System.ComponentModel.Win32Exception) {
                     // unable to determine
@@ -73,12 +70,6 @@ namespace FSActiveFires {
         }
     }
 
-    class FlightSimulatorX : Simulator { public FlightSimulatorX() { _registryKey = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\microsoft games\flight simulator\10.0"; _executableName = "fsx"; } }
-    class EnterpriseSimulationPlatform : Simulator { public EnterpriseSimulationPlatform() { _registryKey = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft ESP\1.0"; _executableName = "esp"; } }
-    class Prepar3D : Simulator { public Prepar3D() { _registryKey = @"HKEY_LOCAL_MACHINE\SOFTWARE\LockheedMartin\Prepar3D"; _executableName = "Prepar3D"; } }
-    class Prepar3D2 : Simulator { public Prepar3D2() { _registryKey = @"HKEY_LOCAL_MACHINE\SOFTWARE\Lockheed Martin\Prepar3D v2"; _executableName = "Prepar3D"; } }
-    class FlightSimulatorXSteamEdition : Simulator { public FlightSimulatorXSteamEdition() { _registryKey = @"HKEY_LOCAL_MACHINE\SOFTWARE\DovetailGames\FSX"; _executableName = "fsx"; _registryValue = "install_path"; } }
-
     class SimInfo {
         private static readonly Lazy<SimInfo> InfoInstance = new Lazy<SimInfo>(() => new SimInfo());
         public static SimInfo Instance { get { return InfoInstance.Value; } }
@@ -87,16 +78,19 @@ namespace FSActiveFires {
         private bool? _fsxCompatibility;
 
         private SimInfo() {
-            simulators = new List<Simulator>();
-            simulators.Add(new FlightSimulatorX());
-            simulators.Add(new EnterpriseSimulationPlatform());
-            simulators.Add(new Prepar3D());
-            simulators.Add(new Prepar3D2());
-            simulators.Add(new FlightSimulatorXSteamEdition());
+            simulators = new List<Simulator>()
+            {
+                new Simulator("fsx", @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\microsoft games\flight simulator\10.0"),
+                new Simulator("esp", @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft ESP\1.0"),
+                new Simulator("Prepar3D", @"HKEY_LOCAL_MACHINE\SOFTWARE\LockheedMartin\Prepar3D"),
+                new Simulator("Prepar3D", @"HKEY_LOCAL_MACHINE\SOFTWARE\Lockheed Martin\Prepar3D v2"),
+                new Simulator("fsx", @"HKEY_LOCAL_MACHINE\SOFTWARE\DovetailGames\FSX", "install_path")
+            };
         }
 
         private bool GetFsxCompatibility() {
-            _fsxCompatibility = !(!simulators[0].VersionInfo.Equals("10.0.61637.0 (FSX-Xpack.20070926-1421)") && !simulators[0].VersionInfo.Equals("10.0.61472.0 (fsx-sp2.20071210-2023)"));
+            var simVersion = simulators[0].VersionInfo;
+            _fsxCompatibility = simVersion.FileMajorPart == 10 && simVersion.FileMinorPart == 0 && (simVersion.FileBuildPart == 61637 || simVersion.FileBuildPart == 61472 || simVersion.FileBuildPart >= 62608);
             return (bool)_fsxCompatibility;
         }
 
@@ -114,7 +108,7 @@ namespace FSActiveFires {
                 foreach (Simulator s in simulators) {
                     simDirs.Add(s.Directory);
                 }
-                return simDirs.Where(x => !string.IsNullOrEmpty(x) && !x.Equals(Simulator.NOT_FOUND));
+                return simDirs.Where(x => !string.IsNullOrEmpty(x));
             }
         }
 
