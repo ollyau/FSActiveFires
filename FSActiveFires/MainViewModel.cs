@@ -212,7 +212,7 @@ namespace FSActiveFires {
 #if !DEBUG
                         }
                         catch (Exception ex) {
-                            log.Warning(string.Format("Unable to remove temporary directory.\r\nType: {0}\r\nMessage: {1}\r\nStack trace:\r\n{2}", ex.GetType(), ex.Message, ex.StackTrace));
+                            log.Warning(string.Format("Unable to remove temporary directory.\r\n{0}", ex.ToString()));
                         }
 #endif
                         if (IsConnected) {
