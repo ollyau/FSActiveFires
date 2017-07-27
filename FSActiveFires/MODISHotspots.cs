@@ -1,4 +1,4 @@
-﻿using Catfood.Shapefile;
+using Catfood.Shapefile;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -62,7 +62,7 @@ namespace FSActiveFires {
         }
 
         private string DownloadShapefileData(string datasetFormatString) {
-            string webUrl = string.Format(datasetFormatString, "shapes/zips", "zip");
+            string webUrl = string.Format(datasetFormatString, "c6/shapes/zips", "zip");
             string zipFileName = webUrl.Substring(webUrl.LastIndexOf('/') + 1, webUrl.Length - webUrl.LastIndexOf('/') - 1);
             string zipFilePath = Path.Combine(tempDirectory, zipFileName);
             string shapefilePath = zipFilePath.Substring(0, zipFilePath.Length - 3) + "shp";
@@ -95,7 +95,7 @@ namespace FSActiveFires {
         }
 
         private string DownloadCsvData(string datasetFormatString) {
-            string webUrl = string.Format(datasetFormatString, "text", "csv");
+            string webUrl = string.Format(datasetFormatString, "c6/text", "csv");
             string fileName = webUrl.Substring(webUrl.LastIndexOf('/') + 1, webUrl.Length - webUrl.LastIndexOf('/') - 1);
             string filePath = Path.Combine(tempDirectory, fileName);
 
